@@ -1,6 +1,15 @@
 from datetime import datetime
 from pathlib import Path
-from sqlalchemy import create_engine, ForeignKey, String, Integer, Float, DateTime, func
+from sqlalchemy import (
+    create_engine,
+    ForeignKey,
+    String,
+    Integer,
+    Boolean,
+    Float,
+    DateTime,
+    func,
+)
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -30,11 +39,14 @@ class Car(Base):
     model: Mapped[str] = mapped_column(String(50))
     year: Mapped[int] = mapped_column(Integer)
     plate_number: Mapped[str] = mapped_column(String(20), unique=True)
-    weekly_price: Mapped[float] = mapped_column(Float)
-    status: Mapped[str] = mapped_column(String(20), default="Свободна")
+    status: Mapped[str] = mapped_column(
+        String(20), default="available"
+    )  # available/rented/maintenance
     notes: Mapped[str | None] = mapped_column(String(500))
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, onupdate=func.now(), nullable=True
+    )
 
     rentals: Mapped[list["Rental"]] = relationship(back_populates="car")
     images: Mapped[list["CarImage"]] = relationship(
@@ -56,13 +68,23 @@ class Tenant(Base):
     __tablename__ = "tenants"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    full_name: Mapped[str] = mapped_column(String(150))
-    phone: Mapped[str] = mapped_column(String(20))
+    fullname: Mapped[str] = mapped_column(String(150))
+    phone_number: Mapped[str] = mapped_column(String(20))
+    duty_sum: Mapped[float] = mapped_column(
+        Float, default=0.0
+    )  # Total amount owed by tenant in rubles
+    next_payment_due: Mapped[datetime | None] = mapped_column(
+        DateTime, nullable=True
+    )  # Next payment due date
 
     avatar_path: Mapped[str | None] = mapped_column(String(300))
     passport_main_path: Mapped[str | None] = mapped_column(String(300))
     passport_sub_path: Mapped[str | None] = mapped_column(String(300))
     driver_license_path: Mapped[str | None] = mapped_column(String(300))
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, onupdate=func.now(), nullable=True
+    )
 
     rentals: Mapped[list["Rental"]] = relationship(back_populates="tenant")
 
@@ -76,6 +98,7 @@ class Rental(Base):
 
     start_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     end_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    weekly_price: Mapped[float] = mapped_column(Float)
     total_cost: Mapped[float] = mapped_column(
         Float, default=0.0
     )  # weekly_price * number_of_weeks
@@ -98,7 +121,7 @@ class Payment(Base):
     )
 
     amount: Mapped[float] = mapped_column(Float)
-    payment_type: Mapped[str] = mapped_column(String(20))  # income/expense
+    type: Mapped[bool] = mapped_column(Boolean)  # True (income) / False (expense)
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     comment: Mapped[str | None] = mapped_column(String(200))
 

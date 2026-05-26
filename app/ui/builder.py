@@ -11,6 +11,7 @@ from flet import (
     Image,
     GestureDetector,
     Icon,
+    IconButton,
     Icons,
     NavigationBar,
     NavigationBarDestination,
@@ -18,6 +19,12 @@ from flet import (
     Colors,
     AppBar,
     Alignment,
+    FloatingActionButton,
+    FloatingActionButtonLocation,
+    SnackBar,
+    SnackBarAction,
+    Duration,
+    Tooltip,
 )
 
 from app.database.manager import DatabaseManager
@@ -73,7 +80,7 @@ class Builder:
             case 4:
                 self.page.go("/finances")
 
-    def _create_car_card(self, car, car_images):
+    def _create_car_card(self, car, car_images=None):
         """Create a card for a car with swipeable images"""
         car_id = car.id
         self.current_image_indices[car_id] = 0
@@ -108,7 +115,9 @@ class Builder:
             content=Column(
                 [
                     Text(
-                        f"{car.brand} {car.model} ({car.year})", size=14, weight="bold"
+                        f"{car.brand} {car.model} ({car.plate_number})",
+                        size=14,
+                        weight="bold",
                     ),
                     image_with_swipe,
                     indicator,
@@ -150,57 +159,84 @@ class Builder:
             )
             image_container.update()
 
-    def build_home_view(self) -> View:
-        print("🏠 Построение home_view...")
-        print("📊 Получение последних добавленных автомобилей...")
-        last_added_cars, images_dict = self.connector.get_last_added_cars()
-        print(f"✅ Получено {len(last_added_cars)} автомобилей")
-        print(f"📸 Словарь изображений: {list(images_dict.keys())}")
+    @staticmethod
+    def _build_complete_snack_bar(object: str) -> SnackBar:
+        return SnackBar(
+            content=Text(f"Новый {object} успешно добавлен!"),
+            action=SnackBarAction(label="ОК"),
+            duration=Duration(seconds=5),
+        )
 
-        # Заголовок
+    def _build_not_data_container(
+        self, icon: Icon, text: str, button_text: str, route: str
+    ) -> Container:
+        return Container(
+            content=Column(
+                [
+                    icon,
+                    Text(
+                        text,
+                        size=18,
+                        weight="bold",
+                        color=Colors.BLACK_87,
+                        align=Alignment.CENTER,
+                    ),
+                    TextButton(
+                        button_text,
+                        icon=Icons.ADD,
+                        on_click=lambda _: self.page.go(route),
+                        align=Alignment.CENTER,
+                    ),
+                ],
+            ),
+            padding=40,
+            alignment=Alignment.CENTER,
+        )
+
+    def _build_fab(self, route: str, text: str) -> FloatingActionButton:
+        return FloatingActionButton(
+            icon=Icons.ADD,
+            on_click=lambda e: self.page.go(route),
+            tooltip=Tooltip(text),
+        )
+
+    def build_home_view(self) -> View:
+        last_added_cars, images_dict = self.connector.get_last_added_cars()
+
         title = Text(
-            "🚘 Cars Rent Helper",
+            "🚗 Cars Rent Helper",
             size=28,
             weight="bold",
             color=Colors.BLUE_700,
         )
 
         if not last_added_cars:
-            empty_message = Container(
+            message = Container(
                 content=Column(
                     [
                         Icon(
-                            Icons.DIRECTIONS_CAR,
+                            Icons.HOME_FILLED,
                             size=60,
                             color=Colors.GREY_400,
                             align=Alignment.CENTER,
                         ),
                         Text(
-                            "Нет добавленных автомобилей",
+                            """Здесь пока пусто.
+Начните пользоваться приложением и эта страница заполнится.""",
                             size=18,
-                            weight="bold",
-                            color=Colors.BLACK_87,
-                            align=Alignment.CENTER,
-                        ),
-                        TextButton(
-                            "Добавить автомобиль",
-                            icon=Icons.ADD,
-                            on_click=lambda _: self.page.go("/add-car"),
+                            width=400,
                             align=Alignment.CENTER,
                         ),
                     ],
-                    alignment=Alignment.CENTER,
-                    horizontal_alignment=Alignment.CENTER,
-                    spacing=20,
-                ),
-                padding=40,
-                alignment=Alignment.CENTER,
+                    align=Alignment.CENTER,
+                    spacing=5,
+                )
             )
 
             content = Column(
                 [
                     title,
-                    empty_message,
+                    message,
                 ],
                 alignment=Alignment.TOP_CENTER,
                 horizontal_alignment=Alignment.CENTER,
@@ -221,7 +257,6 @@ class Builder:
                 ],
             )
 
-        # Если есть машины - показываем их
         cars_column = Column(
             alignment=Alignment.CENTER,
             horizontal_alignment=Alignment.CENTER,
@@ -229,15 +264,10 @@ class Builder:
         )
 
         for car in last_added_cars:
-            print(f"🚗 Обработка автомобиля: {car.brand} {car.model} (ID: {car.id})")
             car_images = images_dict.get(car.id, [])
-            print(f"   Количество изображений: {len(car_images)}")
             if car_images:
-                print(f"   ✅ Добавляю карточку")
                 card = self._create_car_card(car, car_images)
                 cars_column.controls.append(card)
-            else:
-                print(f"   ⚠️ Нет изображений для этого автомобиля")
 
         subtitle = Text(
             "Последние добавленные автомобили",
@@ -257,7 +287,6 @@ class Builder:
             spacing=15,
         )
 
-        print("✅ home_view построен успешно")
         return View(
             route="/",
             navigation_bar=self._get_nav_bar(0),
@@ -266,17 +295,30 @@ class Builder:
                     content=content,
                     padding=20,
                     bgcolor=Colors.WHITE,
-                    width=self.page.window_width,
-                    height=self.page.window_height - 80,
+                    width=self.page.width,
+                    height=self.page.height - 80,
                 )
             ],
         )
 
     def build_cars_view(self) -> View:
-
         cars_list = self.db_manager.get_all_cars()
+        fab = self._build_fab("/add_car", "Добавить автомобиль")
+
         if not cars_list:
+            empty_message = self._build_not_data_container(
+                Icon(
+                    Icons.DIRECTIONS_CAR,
+                    size=60,
+                    color=Colors.GREY_400,
+                    align=Alignment.CENTER,
+                ),
+                "⚠ Нет добавленных автомобилей",
+                "Добавить автомобиль",
+                "/add_car",
+            )
             return View(
+                route="/cars",
                 navigation_bar=self._get_nav_bar(1),
                 controls=[
                     Container(
@@ -285,26 +327,17 @@ class Builder:
                                 AppBar(
                                     title=Text("🚗 Автомобили", size=24, weight="bold")
                                 ),
-                                Text(
-                                    "⚠ Нет добавленных автомобилей",
-                                    size=16,
-                                    color=Colors.GREY_700,
-                                    align=Alignment.CENTER,
-                                ),
-                                ElevatedButton(
-                                    "Добавить новый автомобиль",
-                                    icon=Icons.ADD,
-                                    on_click=lambda e: self.page.go("/add_car"),
-                                    align=Alignment.CENTER,
-                                ),
+                                empty_message,
                             ]
                         ),
                         alignment=Alignment.CENTER,
                     )
                 ],
+                floating_action_button=fab,
+                floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
             )
 
-        content = Container(
+        cars_content = Container(
             padding=40,
             bgcolor=Colors.WHITE,
             expand=True,
@@ -313,8 +346,283 @@ class Builder:
         for car in cars_list:
             car_images = [img.image_path for img in car.images]
             card = self._create_car_card(car, car_images)
-            content.content.append(card)
+            cars_content.content.controls.append(card)
 
         return View(
-            route="/cars", navigation_bar=self._get_nav_bar(1), controls=[content]
+            route="/cars",
+            navigation_bar=self._get_nav_bar(1),
+            controls=[cars_content],
+            floating_action_button=fab,
+            floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+        )
+
+    def build_tenants_view(self) -> View:
+        tenants_list = self.db_manager.get_all_tenants()
+        fab = self._build_fab("/add_tenant", "Добавить водителя")
+
+        if not tenants_list:
+            empty_message = self._build_not_data_container(
+                Icon(
+                    Icons.PERSON, size=60, color=Colors.GREY_400, align=Alignment.CENTER
+                ),
+                "⚠ Нет добавленных водителей",
+                "Добавить водителя",
+                "/add_tenant",
+            )
+            return View(
+                route="/tenants",
+                navigation_bar=self._get_nav_bar(2),
+                controls=[
+                    Container(
+                        content=Column(
+                            [
+                                AppBar(
+                                    title=Text("👤 Водители", size=24, weight="bold")
+                                ),
+                                empty_message,
+                            ]
+                        ),
+                        alignment=Alignment.CENTER,
+                    )
+                ],
+                floating_action_button=fab,
+                floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+            )
+
+        tenants_content = Container(
+            padding=40,
+            bgcolor=Colors.WHITE,
+            expand=True,
+        )
+
+        for tenant in tenants_list:
+            tenant_card = Container(
+                content=Column(
+                    [
+                        Text(f"{tenant.fullname}", size=14, weight="bold"),
+                        Text(f"Телефон: {tenant.phone_number}", size=12),
+                        TextButton(
+                            "Подробнее",
+                            on_click=lambda e: self.page.go(f"/details_{tenant.id}"),
+                        ),
+                    ],
+                    spacing=5,
+                ),
+                padding=15,
+                border_radius=12,
+                bgcolor=Colors.GREY_100,
+                shadow=True,
+            )
+            tenants_content.content.controls.append(tenant_card)
+
+        return View(
+            route="/tenants",
+            navigation_bar=self._get_nav_bar(2),
+            controls=[tenants_content],
+            floating_action_button=fab,
+            floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+        )
+
+    def build_rentals_view(self):
+        rentals_list = self.db_manager.get_all_rentals()
+        fab = self._build_fab("/add_rental", "Добавить аренду")
+
+        if not rentals_list:
+            empty_message = self._build_not_data_container(
+                Icon(
+                    Icons.KEY,
+                    size=60,
+                    color=Colors.GREY_400,
+                    align=Alignment.CENTER,
+                ),
+                "⚠ Нет истории аренды машин",
+                "Добавить аренду",
+                "/add_rental",
+            )
+            return View(
+                route="/tenants",
+                navigation_bar=self._get_nav_bar(3),
+                controls=[
+                    Container(
+                        content=Column(
+                            [
+                                AppBar(title=Text("📋 Аренды", size=24, weight="bold")),
+                                empty_message,
+                            ]
+                        ),
+                        alignment=Alignment.CENTER,
+                    )
+                ],
+                floating_action_button=fab,
+                floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+            )
+
+        rentals_content = Container(padding=40, bgcolor=Colors.WHITE, expand=True)
+
+        for rental in rentals_list:
+            match rental.status:
+                case "active":
+                    status_text = "Активно"
+                    status_color = Colors.GREEN_500
+                case "completed":
+                    status_text = "Завершено"
+                    status_color = Colors.BLACK_87
+                case "cancelled":
+                    status_text = "Отменено"
+                    status_color = Colors.RED_500
+
+            rental_card = Container(
+                content=Column(
+                    [
+                        Text(
+                            f"Статус: {status_text}",
+                            size=16,
+                            color=status_color,
+                            weight="bold",
+                        ),
+                        Text(
+                            f"Машина: {rental.car.brand} {rental.car.model} ({rental.car.plate_number})",
+                            size=14,
+                        ),
+                        Text(
+                            f"Водитель: {rental.tenant.fullname} ({rental.tenant.phone_number})",
+                            size=14,
+                        ),
+                        Text(f"Доход в сумме: {rental.total_cost} руб."),
+                        Text(f"Начало: {rental.start_date}", size=14),
+                        Text(f"Конец: {rental.end_date}", size=14),
+                    ],
+                    spacing=5,
+                ),
+                padding=15,
+                border_radius=12,
+                bgcolor=Colors.GREY_100,
+                shadow=True,
+            )
+            rentals_content.content.controls.append(rental_card)
+
+        return View(
+            route="/rentals",
+            navigation_bar=self._get_nav_bar(3),
+            controls=[rentals_content],
+            floating_action_button=fab,
+            floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+        )
+
+    def build_finances_view(self):
+        payments_list = self.db_manager.get_all_payments()
+        fab = self._build_fab("/add_payment", "Добавить операцию")
+
+        if not payments_list:
+            empty_message = self._build_not_data_container(
+                Icon(
+                    Icons.ATTACH_MONEY,
+                    size=60,
+                    color=Colors.GREY_400,
+                    align=Alignment.CENTER,
+                ),
+                "⚠ Нет истории доходов/расходов",
+                "Добавить операцию",
+                "/add_payment",
+            )
+            return View(
+                route="/finances",
+                navigation_bar=self._get_nav_bar(4),
+                controls=[
+                    Container(
+                        content=Column(
+                            [
+                                AppBar(
+                                    title=Text("💰 Финансы", size=24, weight="bold")
+                                ),
+                                empty_message,
+                            ]
+                        ),
+                        alignment=Alignment.CENTER,
+                    )
+                ],
+                floating_action_button=fab,
+                floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+            )
+
+        payments_content = Container(padding=40, bgcolor=Colors.WHITE, expand=True)
+
+        for payment in payments_list:
+            payment_type = "Доход" if payment.type else "Расход"
+            text_color = Colors.GREEN_500 if payment.type else Colors.RED_500
+            payment_card = Container(
+                content=Column(
+                    [
+                        Row(
+                            Text(f"Тип:", size=14),
+                            Text(f"{payment_type}", size=14, color=text_color),
+                        ),
+                        Text(f"Сумма: {payment.amount} руб.", size=14),
+                        Text(
+                            f"Комментарий: {payment.comment}",
+                            size=12,
+                            color=Colors.GREY_700,
+                        ),
+                    ]
+                )
+            )
+            payments_content.content.controls.append(payment_card)
+
+        return View(
+            route="/finances",
+            navigation_bar=self._get_nav_bar(4),
+            controls=[payments_content],
+            floating_action_button=fab,
+            floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+        )
+
+    def build_add_car_view(self):
+        def upload_images(e):
+            # Логика загрузки изображений для автомобиля
+            pass
+
+        def save_car(e):
+            self.db_manager.save_new_car(
+                brand=brand_input.value,
+                model=model_input.value,
+                year=year_input.value,
+                plate_number=plate_num_input.value,
+            )
+
+            self.page.go("/cars")
+
+        brand_input = TextField(label="Марка", width=300)
+        model_input = TextField(label="Модель", width=300)
+        year_input = TextField(label="Год выпуска", width=300)
+        plate_num_input = TextField(label="Гос. номер", width=300)
+        input = Container(
+            content=Column(
+                [
+                    Text("Новый автомобиль", size=24, weight="bold"),
+                    brand_input,
+                    model_input,
+                    year_input,
+                    plate_num_input,
+                    TextButton(
+                        "Загрузить изображения",
+                        icon=Icons.UPLOAD_FILE,
+                        on_click=upload_images,
+                    ),
+                    ElevatedButton("Сохранить", icon=Icons.SAVE, on_click=save_car),
+                    ElevatedButton(
+                        "Назад",
+                        icon=Icons.ARROW_BACK,
+                        on_click=lambda e: self.page.go("/cars"),
+                    ),
+                ],
+                spacing=15,
+            ),
+            padding=40,
+            alignment=Alignment.CENTER,
+        )
+
+        return View(
+            route="/add_car",
+            navigation_bar=self._get_nav_bar(1),
+            controls=[input],
         )

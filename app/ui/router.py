@@ -1,5 +1,7 @@
 from flet import Page, View, Text, Container, Column, Colors, ElevatedButton, Row, Icons
 import traceback
+import time
+
 from app.ui.builder import Builder
 
 
@@ -13,25 +15,19 @@ class UIRouter:
         self.page.update()
 
     def build(self):
-        print("🚀 Инициализация UIRouter...")
         self.page.title = "Cars Rent Helper"
 
         # Сначала регистрируем обработчик
         self.page.on_route_change = self.route_change
-        print("📍 Регистрация обработчика маршрутизации...")
 
         # Явно фиксируем текущий маршрут и рендерим первую view
-        self.page.route = "/"
-        print(f"📍 Текущий маршрут: {self.page.route}")
-        self._set_navigation_bar(0)
+        self.page.route = self._set_navigation_bar(0)
 
-        print("🔨 Построение начального экрана (home)...")
         try:
             view = self.home_view()
             self.page.views.clear()
             self.page.views.append(view)
             self.page.update()
-            print("✅ Начальный экран загружен успешно")
         except Exception as ex:
             print(f"❌ Ошибка при загрузке начального экрана:")
             print(traceback.format_exc())
@@ -60,38 +56,29 @@ class UIRouter:
             self.page.update()
 
     def route_change(self, e):
-        """Обработчик смены экранов. e — это RouteChangeEvent"""
-        print(f"📂 route_change вызван: {e.route}")
+        """Обработчик смены экранов.
+        :params
+        e: RouteChangeEvent"""
 
-        # 1. Сначала Пытаемся создать вьюшку.
         try:
-            print(f"🔄 Обработка маршрута: {e.route}")
             match e.route:
                 case "/":
-                    print("✨ Построение home_view...")
-                    self._set_navigation_bar(0)
                     view = self.home_view()
                 case "/cars":
-                    self._set_navigation_bar(1)
                     view = self.cars_view()
                 case "/tenants":
-                    self._set_navigation_bar(2)
                     view = self.tenants_view()
                 case "/rentals":
-                    self._set_navigation_bar(3)
                     view = self.rentals_view()
                 case "/finances":
-                    self._set_navigation_bar(4)
                     view = self.finances_view()
+                case "/add_car":
+                    view = self.add_car_view()
                 case _:
-                    print(f"⚠️ Неизвестный маршрут: {e.route}, используем home_view")
-                    self._set_navigation_bar(0)
                     view = self.home_view()
-            print(f"✅ Вьюшка построена успешно для {e.route}")
         except Exception as ex:
             print(f"❌ Ошибка при сборке экрана {e.route}:")
             print(traceback.format_exc())
-            # Показываем ошибку в UI
             error_content = Container(
                 content=Column(
                     [
@@ -101,7 +88,7 @@ class UIRouter:
                             weight="bold",
                             color=Colors.RED,
                         ),
-                        Text(f"Маршрут: {e.route}", size=12, color=Colors.BLACK87),
+                        Text(f"Маршрут: {e.route}", size=12, color=Colors.BLACK_87),
                         Text(f"Ошибка: {str(ex)}", size=12, color=Colors.RED_800),
                     ],
                     alignment="center",
@@ -117,13 +104,12 @@ class UIRouter:
                 controls=[error_content],
             )
 
-        # 2. Только если вьюшка успешно собрана — обновляем экран
+        # Only after we have the view, we try to update the page. This way we avoid clearing the page if view creation fails.
         try:
-            print("🔄 Обновление страницы...")
             self.page.views.clear()
+            time.sleep(0.1)
             self.page.views.append(view)
             self.page.update()
-            print("✅ Страница обновлена")
         except Exception as ex:
             print(f"❌ Ошибка при обновлении страницы: {ex}")
             print(traceback.format_exc())
@@ -131,49 +117,26 @@ class UIRouter:
     def home_view(self):
         return self.builder.build_home_view()
 
-    # Добавляем недостающие методы-заглушки, чтобы роутер не падал
-    def _create_placeholder_view(self, route: str, title: str, nav_index: int):
-        """Создаёт красивую view-заглушку"""
-        content = Container(
-            content=Column(
-                [
-                    Text(
-                        title,
-                        size=24,
-                        weight="bold",
-                        color=Colors.BLUE_700,
-                    ),
-                    Text(
-                        "В разработке",
-                        size=16,
-                        color=Colors.ORANGE_700,
-                        weight="w500",
-                    ),
-                ],
-                alignment="center",
-                horizontal_alignment="center",
-                spacing=20,
-            ),
-            padding=40,
-            bgcolor=Colors.WHITE,
-            expand=True,
-        )
-
-        return View(
-            route=route,
-            controls=[content],
-        )
-
     def cars_view(self):
-        """Экран автомобилей с большим видимым контентом для теста"""
-        print("🚗 Загрузка экрана /cars")
         return self.builder.build_cars_view()
 
     def tenants_view(self):
-        return self._create_placeholder_view("/tenants", "👥 Водители", 2)
+        return self.builder.build_tenants_view()
 
     def rentals_view(self):
-        return self._create_placeholder_view("/rentals", "📋 Аренды", 3)
+        return self.builder.build_rentals_view()
 
     def finances_view(self):
-        return self._create_placeholder_view("/finances", "💰 Финансы", 4)
+        return self.builder.build_finances_view()
+
+    def add_car_view(self):
+        return self.builder.build_add_car_view()
+
+    def add_tenant_view(self):
+        return self.builder.build_add_tenant_view()
+
+    def add_rental_view(self):
+        return self.builder.build_add_rental_view()
+
+    def add_payment_view(self):
+        return self.builder.build_add_payment_view()

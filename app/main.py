@@ -1,5 +1,4 @@
-from flet import Page
-import flet as ft
+from flet import Page, Theme, PageTransitionsTheme, PageTransitionTheme, run
 import traceback
 
 from app.database.models import init_db
@@ -10,7 +9,12 @@ def main(page: Page):
     try:
         init_db()
 
-        page.theme = ft.Theme(font_family="Arial")
+        page.theme = Theme(
+            font_family="Arial",
+            page_transitions=PageTransitionsTheme(
+                android=PageTransitionTheme.NONE, linux=PageTransitionTheme.NONE
+            ),
+        )
         ui = UIRouter(page)
         ui.build()
 
@@ -21,4 +25,4 @@ def main(page: Page):
 
 if __name__ == "__main__":
     print("The app has been setup")
-    ft.run(main=main)
+    run(main=main)

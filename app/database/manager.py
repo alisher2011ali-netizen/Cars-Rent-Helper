@@ -85,3 +85,31 @@ class DatabaseManager:
 
     def get_all_cars(self):
         return self.session.query(Car).order_by(Car.updated_at.desc()).all()
+
+    def get_all_tenants(self):
+        return self.session.query(Tenant).order_by(Tenant.updated_at.desc()).all()
+
+    def get_all_rentals(self):
+        return self.session.query(Rental).order_by(Rental.status.desc()).all()
+
+    def get_all_payments(self):
+        return self.session.query(Payment).order_by(Payment.date.desc()).all()
+
+    def save_new_car(
+        self,
+        brand: str,
+        model: str,
+        year: int,
+        plate_number: str,
+        notes: str | None = None,
+    ) -> Car:
+        new_car = Car(
+            brand=brand,
+            model=model,
+            year=year,
+            plate_number=plate_number,
+            notes=notes,
+        )
+        self.session.add(new_car)
+        self.session.commit()
+        return new_car
