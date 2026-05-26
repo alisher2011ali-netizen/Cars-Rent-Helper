@@ -15,26 +15,23 @@ class Connector:
         last_added_cars = self.db_manager.get_last_added_cars()
         if not last_added_cars:
             return [], {}
-        images = {}
-        for car in last_added_cars:
-            images[car.id] = []
-            try:
-                if car.images and len(car.images) > 0:
-                    for car_image in car.images:
-                        try:
-                            with open(car_image.image_path, "rb") as f:
-                                image_bytes = f.read()
-                                images[car.id].append(
-                                    base64.b64encode(image_bytes).decode("utf-8")
-                                )
-                        except FileNotFoundError:
-                            print(
-                                f"Ошибка: Файл изображения {car_image.image_path} не найден"
-                            )
-                        except Exception as ex:
-                            print(f"Ошибка при чтении {car_image.image_path}: {ex}")
-                else:
-                    print(f"Предупреждение: У автомобиля {car.id} нет изображений")
-            except Exception as ex:
-                print(f"Ошибка при обработке изображений для автомобиля {car.id}: {ex}")
+        try:
+            images = {}
+            for car in last_added_cars:
+                images[car.id] = []
+
+                if not car.images:
+                    continue
+
+                for car_image in car.images:
+                    with open(car_image.image_path, "rb") as f:
+                        image_bytes = f.read()
+                        images[car.id].append(
+                            base64.b64encode(image_bytes).decode("utf-8")
+                        )
+        except Exception as ex:
+            print(f"❌ Ошибка при загрузке изображений автомобилей:")
+            print(ex)
+            images = {car.id: [] for car in last_added_cars}
+
         return last_added_cars, images

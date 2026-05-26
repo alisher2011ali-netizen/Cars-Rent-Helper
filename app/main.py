@@ -15,6 +15,10 @@ def main(page: Page):
                 android=PageTransitionTheme.NONE, linux=PageTransitionTheme.NONE
             ),
         )
+        page.window.width = 360
+        page.window.height = 780
+        # page.window.resizable = False
+        # page.window.maximizable = False
         ui = UIRouter(page)
         ui.build()
 
