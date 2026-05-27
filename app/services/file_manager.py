@@ -3,29 +3,25 @@ from pathlib import Path
 
 default_images_path = Path("data/images/")
 
+
 class FileManager:
     def __init__(self):
         pass
 
-    def save_file(file, subfolder: str) -> str:
-        # Create the folder for the subfolder if it doesn't exist
-        images_folder = default_images_path / subfolder
-        images_folder.mkdir(parents=True, exist_ok=True)
-
-    # Save the file to the appropriate folder
-        file_path = images_folder / file.filename
+    def save_file(self, file_data: bytes, file_path: str) -> str:
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, "wb") as f:
-            f.write(file.file.read())
+            f.write(file_data)
 
         return str(file_path)
 
-    def get_file(file_path: str):
+    def get_file(self, file_path: str):
         if os.path.exists(file_path):
             with open(file_path, "rb") as f:
                 return f.read()
         return None
 
-    def delete_file(file_path: str):
+    def delete_file(self, file_path: str):
         if os.path.exists(file_path):
             os.remove(file_path)
         return True

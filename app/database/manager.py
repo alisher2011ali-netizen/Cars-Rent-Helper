@@ -113,3 +113,18 @@ class DatabaseManager:
         self.session.add(new_car)
         self.session.commit()
         return new_car
+
+    def save_image_path(self, object_id: int, image_path: str) -> str:
+        if image_path.startswith("data/images/cars/"):
+            new_image = CarImage(car_id=object_id, image_path=image_path)
+        elif image_path.startswith("data/images/tenants/"):
+            tenant = self.session.query(Tenant).filter_by(id=object_id).first()
+            if tenant:
+                tenant.avatar_path = image_path
+                self.session.commit()
+                return image_path
+            else:
+                raise ValueError(f"Tenant with id {object_id} not found")
+        self.session.add(new_image)
+        self.session.commit()
+        return image_path

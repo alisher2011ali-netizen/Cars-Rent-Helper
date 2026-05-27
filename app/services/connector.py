@@ -35,3 +35,35 @@ class Connector:
             images = {car.id: [] for car in last_added_cars}
 
         return last_added_cars, images
+
+    def save_image(
+        self,
+        *,
+        object_id: int,
+        image_data: bytes,
+        unique_number: int = 0,
+        object_type: str = "car",
+        subtype: str = None,
+    ) -> str:
+        try:
+            if object_type == "car":
+                image_path = f"data/images/cars/{object_id}_{unique_number}.jpg"
+            elif object_type == "tenant":
+                match subtype:
+                    case "avatar":
+                        image_path = f"data/images/tenants/avatars/{object_id}_{unique_number}.jpg"
+                    case "passport":
+                        image_path = f"data/images/tenants/passports/{object_id}_{unique_number}.jpg"
+                    case "sub_passport":
+                        image_path = f"data/images/tenants/sub_passports/{object_id}_{unique_number}.jpg"
+                    case "driver_license":
+                        image_path = f"data/images/tenants/driver_licenses/{object_id}_{unique_number}.jpg"
+            self.file_manager.save_file(image_data, image_path)
+            self.db_manager.save_image_path(object_id=object_id, image_path=image_path)
+            return image_path
+        except Exception as ex:
+            print(
+                f"❌ Ошибка при сохранении изображения для {object_type} {object_id}:"
+            )
+            print(ex)
+            return ""

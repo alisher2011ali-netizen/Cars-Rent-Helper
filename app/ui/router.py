@@ -2,7 +2,7 @@ from flet import Page, View, Text, Container, Column, Colors, ElevatedButton, Ro
 import traceback
 import time
 
-from app.ui.builder import Builder
+from app.ui.builders import Builder
 
 
 class UIRouter:
