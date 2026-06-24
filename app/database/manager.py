@@ -1,4 +1,12 @@
-from app.database.models import Car, CarImage, Tenant, Rental, Payment, session_factory
+from app.database.models import (
+    Car,
+    Image,
+    ImageCategory,
+    Tenant,
+    Rental,
+    Payment,
+    session_factory,
+)
 
 
 class DatabaseManager:
@@ -11,7 +19,6 @@ class DatabaseManager:
         model: str,
         year: int,
         plate_number: str,
-        weekly_price: float,
         notes: str | None = None,
     ) -> Car:
         new_car = Car(
@@ -19,18 +26,11 @@ class DatabaseManager:
             model=model,
             year=year,
             plate_number=plate_number,
-            weekly_price=weekly_price,
             notes=notes,
         )
         self.session.add(new_car)
         self.session.commit()
         return new_car
-
-    def add_car_image(self, car_id: int, image_path: str) -> CarImage:
-        new_image = CarImage(car_id=car_id, image_path=image_path)
-        self.session.add(new_image)
-        self.session.commit()
-        return new_image
 
     def add_tenant(
         self,
@@ -52,23 +52,6 @@ class DatabaseManager:
         self.session.add(new_tenant)
         self.session.commit()
         return new_tenant
-
-    def add_tenant_passport_images(
-        self,
-        tenant_id: int,
-        avatar_path: str | None = None,
-        passport_main_path: str | None = None,
-        passport_sub_path: str | None = None,
-        driver_license_path: str | None = None,
-    ) -> Tenant:
-        tenant = self.session.query(Tenant).filter_by(id=tenant_id).first()
-        if tenant:
-            tenant.avatar_path = avatar_path
-            tenant.passport_main_path = passport_main_path
-            tenant.passport_sub_path = passport_sub_path
-            tenant.driver_license_path = driver_license_path
-            self.session.commit()
-        return tenant
 
     def get_last_added_cars(self, limit: int = 5):
 
@@ -95,36 +78,15 @@ class DatabaseManager:
     def get_all_payments(self):
         return self.session.query(Payment).order_by(Payment.date.desc()).all()
 
-    def save_new_car(
-        self,
-        brand: str,
-        model: str,
-        year: int,
-        plate_number: str,
-        notes: str | None = None,
-    ) -> Car:
-        new_car = Car(
-            brand=brand,
-            model=model,
-            year=year,
-            plate_number=plate_number,
-            notes=notes,
+    def save_image_path(
+        self, object_type: str, object_id: int, category: ImageCategory, image_path: str
+    ) -> str:
+        new_image = Image(
+            object_id=object_id,
+            object_type=object_type,
+            category=category,
+            path=image_path,
         )
-        self.session.add(new_car)
-        self.session.commit()
-        return new_car
-
-    def save_image_path(self, object_id: int, image_path: str) -> str:
-        if image_path.startswith("data/images/cars/"):
-            new_image = CarImage(car_id=object_id, image_path=image_path)
-        elif image_path.startswith("data/images/tenants/"):
-            tenant = self.session.query(Tenant).filter_by(id=object_id).first()
-            if tenant:
-                tenant.avatar_path = image_path
-                self.session.commit()
-                return image_path
-            else:
-                raise ValueError(f"Tenant with id {object_id} not found")
         self.session.add(new_image)
         self.session.commit()
         return image_path

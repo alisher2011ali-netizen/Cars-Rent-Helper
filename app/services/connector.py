@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict
-import base64
+import base64, uuid
 
 from app.database.models import Car
 from app.database.manager import DatabaseManager
@@ -39,13 +39,13 @@ class Connector:
     def save_image(
         self,
         *,
+        image_path: str,
         object_id: int,
-        image_data: bytes,
-        unique_number: int = 0,
-        object_type: str = "car",
-        subtype: str = None,
+        object_type: str,
+        subtype: str = "car_photo",
     ) -> str:
         try:
+            unique_number = uuid.uuid4().hex[:8]
             if object_type == "car":
                 image_path = f"data/images/cars/{object_id}_{unique_number}.jpg"
             elif object_type == "tenant":
@@ -58,8 +58,14 @@ class Connector:
                         image_path = f"data/images/tenants/sub_passports/{object_id}_{unique_number}.jpg"
                     case "driver_license":
                         image_path = f"data/images/tenants/driver_licenses/{object_id}_{unique_number}.jpg"
+
             self.file_manager.save_file(image_data, image_path)
-            self.db_manager.save_image_path(object_id=object_id, image_path=image_path)
+            self.db_manager.save_image_path(
+                object_type=object_type,
+                object_id=object_id,
+                category=subtype,
+                image_path=image_path,
+            )
             return image_path
         except Exception as ex:
             print(

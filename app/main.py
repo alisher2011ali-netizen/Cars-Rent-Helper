@@ -17,8 +17,6 @@ def main(page: Page):
         )
         page.window.width = 360
         page.window.height = 780
-        # page.window.resizable = False
-        # page.window.maximizable = False
         ui = UIRouter(page)
         ui.build()
 

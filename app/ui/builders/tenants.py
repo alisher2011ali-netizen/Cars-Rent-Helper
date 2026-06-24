@@ -83,3 +83,6 @@ class TenantBuilder(Builder):
             floating_action_button=fab,
             floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
         )
+
+    def build_add_tenant_view(self) -> View:
+        file_picker = self._file_picker

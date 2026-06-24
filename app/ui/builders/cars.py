@@ -10,6 +10,7 @@ from flet import (
     AppBar,
     FilePicker,
     FilePickerFileType,
+    FilePickerUploadEvent,
     TextField,
     TextButton,
     ElevatedButton,
@@ -78,7 +79,7 @@ class CarBuilder(Builder):
 
         cars_content = Container(
             content=content,
-            padding=40,
+            padding=20,
             width=self.page.width,
             height=self.page.height,
             expand=True,
@@ -93,21 +94,33 @@ class CarBuilder(Builder):
         )
 
     def build_add_car_view(self) -> View:
-        file_picker = FilePicker(on_result=self._on_file_picker_result)
-        self.page.overlay.append(file_picker)
+        selected_images_paths = []
 
-        def pick_image_click(e):
-            file_picker.pick_files(
+        def _on_file_picker_result(self, e: FilePickerUploadEvent):
+            if e.files:
+                for file in e.files:
+                    if file.path not in selected_images_paths:
+                        selected_images_paths.append(file.path)
+
+        file_picker = FilePicker(on_upload=_on_file_picker_result)
+
+        async def pick_image_click(e):
+            await file_picker.pick_files(
                 allow_multiple=False, file_type=FilePickerFileType.IMAGE
             )
 
         def save_car(e):
-            self.db_manager.save_new_car(
+            car_id = self.db_manager.add_car(
                 brand=brand_input.value,
                 model=model_input.value,
                 year=year_input.value,
                 plate_number=plate_num_input.value,
-            )
+            ).id
+
+            for image_path in selected_images_paths:
+                self.connector.save_image(
+                    image_path=image_path, object_id=car_id, object_type="car"
+                )
 
             self.page.go("/cars")
 

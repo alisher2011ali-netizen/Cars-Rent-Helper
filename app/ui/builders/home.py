@@ -71,7 +71,9 @@ class HomeBuilder(Builder):
             car_images = images_dict.get(car.id, [])
             if car_images:
                 card = self._create_car_card(car, car_images)
-                cars_column.controls.append(card)
+            else:
+                card = self._create_car_card(car)
+            cars_column.controls.append(card)
 
         subtitle = Text(
             "Последние добавленные автомобили",

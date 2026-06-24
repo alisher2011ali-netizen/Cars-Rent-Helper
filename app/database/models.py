@@ -17,6 +17,7 @@ from sqlalchemy.orm import (
     relationship,
     sessionmaker,
 )
+from enum import Enum
 
 data_path = Path("data/")
 if not data_path.exists():
@@ -29,6 +30,24 @@ session_factory = sessionmaker(bind=engine)
 
 class Base(DeclarativeBase):
     pass
+
+
+class ImageCategory(str, Enum):
+    AVATAR = "avatar"
+    PASSPORT = "passport"
+    SUB_PASSPORT = "sub_passport"
+    DRIVE_LICENSE = "drive_license"
+    CAR_PHOTO = "car_photo"
+
+
+class Image(Base):
+    __tablename__ = "car_images"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    path: Mapped[str] = mapped_column(String(300))
+    object_id: Mapped[int] = mapped_column(Integer)
+    object_type: Mapped[str] = mapped_column(String(50))  # "car" or "tenant"
+    category: Mapped[str] = mapped_column(String(50), nullable=False)
 
 
 class Car(Base):
@@ -49,19 +68,12 @@ class Car(Base):
     )
 
     rentals: Mapped[list["Rental"]] = relationship(back_populates="car")
-    images: Mapped[list["CarImage"]] = relationship(
-        back_populates="car", cascade="all, delete-orphan"
+    images: Mapped[list["Image"]] = relationship(
+        "Image",
+        primaryjoin="and_(Car.id==Image.object_id, Image.object_type=='car')",
+        foreign_keys=[Image.object_id],
+        viewonly=True,  # Защита от случайной некорректной записи
     )
-
-
-class CarImage(Base):
-    __tablename__ = "car_images"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    car_id: Mapped[int] = mapped_column(ForeignKey("cars.id"))
-    image_path: Mapped[str] = mapped_column(String(300))
-
-    car: Mapped["Car"] = relationship(back_populates="images")
 
 
 class Tenant(Base):
@@ -77,10 +89,34 @@ class Tenant(Base):
         DateTime, nullable=True
     )  # Next payment due date
 
-    avatar_path: Mapped[str | None] = mapped_column(String(300))
-    passport_main_path: Mapped[str | None] = mapped_column(String(300))
-    passport_sub_path: Mapped[str | None] = mapped_column(String(300))
-    driver_license_path: Mapped[str | None] = mapped_column(String(300))
+    avatar: Mapped["Image"] = relationship(
+        "Image",
+        primaryjoin=f"and_(Tenant.id==Image.object_id, Image.object_type=='tenant', Image.category=='{ImageCategory.AVATAR}')",
+        foreign_keys=[Image.object_id],
+        uselist=False,  # Возвращает один объект Image, а не list
+        viewonly=True,
+    )
+    passport: Mapped["Image"] = relationship(
+        "Image",
+        primaryjoin=f"and_(Tenant.id==Image.object_id, Image.object_type=='tenant', Image.category=='{ImageCategory.PASSPORT}')",
+        foreign_keys=[Image.object_id],
+        uselist=False,
+        viewonly=True,
+    )
+    sub_passport: Mapped["Image"] = relationship(
+        "Image",
+        primaryjoin=f"and_(Tenant.id==Image.object_id, Image.object_type=='tenant', Image.category=='{ImageCategory.SUB_PASSPORT}')",
+        foreign_keys=[Image.object_id],
+        uselist=False,
+        viewonly=True,
+    )
+    drive_license: Mapped["Image"] = relationship(
+        "Image",
+        primaryjoin=f"and_(Tenant.id==Image.object_id, Image.object_type=='tenant', Image.category=='{ImageCategory.DRIVE_LICENSE}')",
+        foreign_keys=[Image.object_id],
+        uselist=False,
+        viewonly=True,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, onupdate=func.now(), nullable=True

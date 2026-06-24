@@ -217,11 +217,6 @@ class Builder:
             tooltip=Tooltip(text),
         )
 
-    def _on_file_picker_result(self, e: FilePickerUploadEvent):
-        if e.files:
-            for file in enumerate(e.files):
-                self.connector.save_image_for_car
-
     def _make(self, builder_cls):
         return builder_cls(
             self.page,
