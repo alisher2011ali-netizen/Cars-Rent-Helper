@@ -4,8 +4,6 @@ from flet import (
     Container,
     Column,
     Text,
-    TextField,
-    ElevatedButton,
     TextButton,
     Image,
     GestureDetector,
@@ -14,17 +12,12 @@ from flet import (
     NavigationBar,
     NavigationBarDestination,
     Colors,
-    AppBar,
     Alignment,
     FloatingActionButton,
-    FloatingActionButtonLocation,
     SnackBar,
     SnackBarAction,
     Duration,
     Tooltip,
-    FilePicker,
-    FilePickerFileType,
-    FilePickerUploadEvent,
 )
 
 from app.database.manager import DatabaseManager
@@ -42,9 +35,7 @@ class Builder:
         self.page = page
         self.db_manager = db_manager or DatabaseManager()
         self.connector = connector or Connector()
-        self.current_image_indices = (
-            current_image_indices if current_image_indices is not None else {}
-        )
+        self.current_image_indices = current_image_indices or {}
 
     def _get_nav_bar(self, current_index: int):
         return NavigationBar(
@@ -180,7 +171,7 @@ class Builder:
     def _build_complete_snack_bar(object: str) -> SnackBar:
         return SnackBar(
             content=Text(f"Новый {object} успешно добавлен!"),
-            action=SnackBarAction(label="ОК"),
+            action=SnackBarAction(label="OK"),
             duration=Duration(seconds=5),
         )
 
@@ -225,6 +216,11 @@ class Builder:
             self.current_image_indices,
         )
 
+    def build_first_launch_view(self) -> View:
+        from app.ui.builders.first_launch import FirstLaunchBuilder
+
+        return self._make(FirstLaunchBuilder).build_first_launch_view()
+
     def build_home_view(self) -> View:
         from app.ui.builders.home import HomeBuilder
 
@@ -256,12 +252,9 @@ class Builder:
         return self._make(CarBuilder).build_add_car_view()
 
     def build_add_tenant_view(self) -> View:
-        return self._build_placeholder_view(
-            route="/add_tenant",
-            title="Добавить водителя",
-            description="Страница добавления водителя ещё не реализована.",
-            nav_index=2,
-        )
+        from app.ui.builders.tenants import TenantBuilder
+
+        return self._make(TenantBuilder).build_add_tenant_view()
 
     def build_add_rental_view(self) -> View:
         return self._build_placeholder_view(

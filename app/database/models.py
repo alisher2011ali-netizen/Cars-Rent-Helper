@@ -32,6 +32,14 @@ class Base(DeclarativeBase):
     pass
 
 
+class Setting(Base):
+    __tablename__ = "settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(100), unique=True)
+    value: Mapped[str] = mapped_column(String(500))
+
+
 class ImageCategory(str, Enum):
     AVATAR = "avatar"
     PASSPORT = "passport"
@@ -72,7 +80,7 @@ class Car(Base):
         "Image",
         primaryjoin="and_(Car.id==Image.object_id, Image.object_type=='car')",
         foreign_keys=[Image.object_id],
-        viewonly=True,  # Защита от случайной некорректной записи
+        viewonly=True,
     )
 
 
@@ -82,7 +90,7 @@ class Tenant(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     fullname: Mapped[str] = mapped_column(String(150))
     phone_number: Mapped[str] = mapped_column(String(20))
-    duty_sum: Mapped[float] = mapped_column(
+    debt_sum: Mapped[float] = mapped_column(
         Float, default=0.0
     )  # Total amount owed by tenant in rubles
     next_payment_due: Mapped[datetime | None] = mapped_column(

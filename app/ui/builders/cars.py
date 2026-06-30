@@ -64,7 +64,7 @@ class CarBuilder(Builder):
         )
 
         for car in cars_list:
-            car_images = [img.image_path for img in car.images]
+            car_images = [img.path for img in car.images]
             card = self._create_car_card(car, car_images)
             cars_column.controls.append(card)
 
@@ -96,7 +96,7 @@ class CarBuilder(Builder):
     def build_add_car_view(self) -> View:
         selected_images_paths = []
 
-        def _on_file_picker_result(self, e: FilePickerUploadEvent):
+        async def _on_file_picker_result(self, e: FilePickerUploadEvent):
             if e.files:
                 for file in e.files:
                     if file.path not in selected_images_paths:
@@ -106,10 +106,10 @@ class CarBuilder(Builder):
 
         async def pick_image_click(e):
             await file_picker.pick_files(
-                allow_multiple=False, file_type=FilePickerFileType.IMAGE
+                allow_multiple=True, file_type=FilePickerFileType.IMAGE
             )
 
-        def save_car(e):
+        async def save_car(e=None):
             car_id = self.db_manager.add_car(
                 brand=brand_input.value,
                 model=model_input.value,
@@ -118,7 +118,7 @@ class CarBuilder(Builder):
             ).id
 
             for image_path in selected_images_paths:
-                self.connector.save_image(
+                await self.connector.save_image(
                     image_path=image_path, object_id=car_id, object_type="car"
                 )
 
@@ -141,7 +141,11 @@ class CarBuilder(Builder):
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_image_click,
                     ),
-                    ElevatedButton("Сохранить", icon=Icons.SAVE, on_click=save_car),
+                    ElevatedButton(
+                        "Сохранить",
+                        icon=Icons.SAVE,
+                        on_click=save_car,
+                    ),
                     ElevatedButton(
                         "Назад",
                         icon=Icons.ARROW_BACK,

@@ -1,4 +1,5 @@
 from app.database.models import (
+    Setting,
     Car,
     Image,
     ImageCategory,
@@ -34,20 +35,14 @@ class DatabaseManager:
 
     def add_tenant(
         self,
-        full_name: str,
-        phone: str,
-        avatar_path: str | None = None,
-        passport_main_path: str | None = None,
-        passport_sub_path: str | None = None,
-        driver_license_path: str | None = None,
+        fullname: str,
+        phone_number: str,
+        debt_sum: float = 0.0,
     ) -> Tenant:
         new_tenant = Tenant(
-            full_name=full_name,
-            phone=phone,
-            avatar_path=avatar_path,
-            passport_main_path=passport_main_path,
-            passport_sub_path=passport_sub_path,
-            driver_license_path=driver_license_path,
+            fullname=fullname,
+            phone_number=phone_number,
+            debt_sum=debt_sum,
         )
         self.session.add(new_tenant)
         self.session.commit()
@@ -61,7 +56,7 @@ class DatabaseManager:
         images = {}
         for car in last_added_cars:
             if car.images:
-                images[car.id] = car.images[0].image_path
+                images[car.id] = car.images[0].path
             else:
                 images[car.id] = None
         return last_added_cars
@@ -90,3 +85,15 @@ class DatabaseManager:
         self.session.add(new_image)
         self.session.commit()
         return image_path
+
+    def get_setting(self, key: str):
+        return self.session.query(Setting.value).where(Setting.key == key).first()
+
+    def set_setting(self, key: str, value: str = None):
+        setting = self.session.query(Setting).where(Setting.key == key).first()
+        if setting:
+            setting.value = value
+        else:
+            new_setting = Setting(key=key, value=value)
+            self.session.add(new_setting)
+        self.session.commit()

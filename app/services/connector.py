@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict
-import base64, uuid
+import base64, uuid, logging
 
 from app.database.models import Car
 from app.database.manager import DatabaseManager
@@ -30,46 +30,46 @@ class Connector:
                             base64.b64encode(image_bytes).decode("utf-8")
                         )
         except Exception as ex:
-            print(f"❌ Ошибка при загрузке изображений автомобилей:")
-            print(ex)
+            logging.exception(
+                "An error occurred while retrieving images for the last added cars."
+            )
             images = {car.id: [] for car in last_added_cars}
 
         return last_added_cars, images
 
-    def save_image(
+    async def save_image(
         self,
         *,
         image_path: str,
         object_id: int,
         object_type: str,
-        subtype: str = "car_photo",
+        category: str = "car_photo",
     ) -> str:
         try:
             unique_number = uuid.uuid4().hex[:8]
             if object_type == "car":
-                image_path = f"data/images/cars/{object_id}_{unique_number}.jpg"
+                new_path = f"data/images/cars/{object_id}_{unique_number}.jpg"
             elif object_type == "tenant":
-                match subtype:
+                match category:
                     case "avatar":
-                        image_path = f"data/images/tenants/avatars/{object_id}_{unique_number}.jpg"
+                        new_path = f"data/images/tenants/avatars/{object_id}_{unique_number}.jpg"
                     case "passport":
-                        image_path = f"data/images/tenants/passports/{object_id}_{unique_number}.jpg"
+                        new_path = f"data/images/tenants/passports/{object_id}_{unique_number}.jpg"
                     case "sub_passport":
-                        image_path = f"data/images/tenants/sub_passports/{object_id}_{unique_number}.jpg"
+                        new_path = f"data/images/tenants/sub_passports/{object_id}_{unique_number}.jpg"
                     case "driver_license":
-                        image_path = f"data/images/tenants/driver_licenses/{object_id}_{unique_number}.jpg"
+                        new_path = f"data/images/tenants/driver_licenses/{object_id}_{unique_number}.jpg"
 
-            self.file_manager.save_file(image_data, image_path)
+            self.file_manager.copy_file(image_path, new_path)
             self.db_manager.save_image_path(
                 object_type=object_type,
                 object_id=object_id,
-                category=subtype,
+                category=category,
                 image_path=image_path,
             )
             return image_path
         except Exception as ex:
-            print(
-                f"❌ Ошибка при сохранении изображения для {object_type} {object_id}:"
+            logging.exception(
+                f"An error occurred while saving the image for {object_type} {object_id}."
             )
-            print(ex)
             return ""

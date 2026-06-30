@@ -1,8 +1,15 @@
-from flet import Page, Theme, PageTransitionsTheme, PageTransitionTheme, run
-import traceback
+from flet import (
+    Page,
+    Theme,
+    PageTransitionsTheme,
+    PageTransitionTheme,
+    run,
+)
+import logging
 
 from app.database.models import init_db
 from app.ui.router import UIRouter
+from app.services.logging import setup_logging
 
 
 def main(page: Page):
@@ -21,10 +28,10 @@ def main(page: Page):
         ui.build()
 
     except Exception as ex:
-        print("❌ ОШИБКА ПРИ ЗАПУСКЕ ПРИЛОЖЕНИЯ:")
-        print(traceback.format_exc())
+        logging.exception("An unexpected error occurred while running the app.")
 
 
 if __name__ == "__main__":
+    setup_logging()
     print("The app has been setup")
     run(main=main)

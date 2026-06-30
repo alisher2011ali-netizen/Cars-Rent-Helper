@@ -1,8 +1,9 @@
 from flet import Page, View, Text, Container, Column, Colors, ElevatedButton, Row, Icons
-import traceback
+import logging
 import time
 
 from app.ui.builders import Builder
+from app.services.localization import AppStrings
 
 
 class UIRouter:
@@ -15,27 +16,25 @@ class UIRouter:
         self.page.update()
 
     def build(self):
-        self.page.title = "Cars Rent Helper"
-
-        # Сначала регистрируем обработчик
+        self.page.title = "Cars Rental App"
         self.page.on_route_change = self.route_change
-
-        # Явно фиксируем текущий маршрут и рендерим первую view
         self.page.route = self._set_navigation_bar(0)
-
         try:
-            view = self.home_view()
-            self.page.views.clear()
-            self.page.views.append(view)
-            self.page.update()
+            if self.builder.db_manager.get_setting("is_first_launch") is None:
+                self.builder.db_manager.set_setting("is_first_launch", "false")
+                self.page.route = "/first_launch"
+            else:
+                view = self.builder.build_home_view()
+                self.page.views.clear()
+                self.page.views.append(view)
+                self.page.update()
         except Exception as ex:
-            print(f"❌ Ошибка при загрузке начального экрана:")
-            print(traceback.format_exc())
+            logging.exception("An error occurred while initializing.")
             error_content = Container(
                 content=Column(
                     [
                         Text(
-                            "❌ ОШИБКА ПРИ ИНИЦИАЛИЗАЦИИ",
+                            AppStrings.error_initializing,
                             size=20,
                             weight="bold",
                             color=Colors.RED,
@@ -56,29 +55,36 @@ class UIRouter:
             self.page.update()
 
     def route_change(self, e):
-        """Обработчик смены экранов.
+        """Handler for route change events. Updates the page view based on the new route.
         :params
         e: RouteChangeEvent"""
 
         try:
             match e.route:
                 case "/":
-                    view = self.home_view()
+                    view = self.builder.build_home_view()
+                case "/first_launch":
+                    view = self.builder.build_first_launch_view()
                 case "/cars":
-                    view = self.cars_view()
+                    view = self.builder.build_cars_view()
                 case "/tenants":
-                    view = self.tenants_view()
+                    view = self.builder.build_tenants_view()
                 case "/rentals":
-                    view = self.rentals_view()
+                    view = self.builder.build_rentals_view()
                 case "/finances":
-                    view = self.finances_view()
+                    view = self.builder.build_finances_view()
                 case "/add_car":
-                    view = self.add_car_view()
+                    view = self.builder.build_add_car_view()
+                case "/add_tenant":
+                    view = self.builder.build_add_tenant_view()
+                case "/add_rental":
+                    view = self.builder.build_add_rental_view()
+                case "/add_payment":
+                    view = self.builder.build_add_payment_view()
                 case _:
-                    view = self.home_view()
+                    view = self.builder.build_home_view()
         except Exception as ex:
-            print(f"❌ Ошибка при сборке экрана {e.route}:")
-            print(traceback.format_exc())
+            logging.exception(f"An error occurred while changing route to {e.route}.")
             error_content = Container(
                 content=Column(
                     [
@@ -111,32 +117,4 @@ class UIRouter:
             self.page.views.append(view)
             self.page.update()
         except Exception as ex:
-            print(f"❌ Ошибка при обновлении страницы: {ex}")
-            print(traceback.format_exc())
-
-    def home_view(self):
-        return self.builder.build_home_view()
-
-    def cars_view(self):
-        return self.builder.build_cars_view()
-
-    def tenants_view(self):
-        return self.builder.build_tenants_view()
-
-    def rentals_view(self):
-        return self.builder.build_rentals_view()
-
-    def finances_view(self):
-        return self.builder.build_finances_view()
-
-    def add_car_view(self):
-        return self.builder.build_add_car_view()
-
-    def add_tenant_view(self):
-        return self.builder.build_add_tenant_view()
-
-    def add_rental_view(self):
-        return self.builder.build_add_rental_view()
-
-    def add_payment_view(self):
-        return self.builder.build_add_payment_view()
+            logging.exception(f"An error occurred while updating the page: {ex}")
