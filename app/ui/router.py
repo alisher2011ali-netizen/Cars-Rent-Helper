@@ -1,9 +1,8 @@
-from flet import Page, View, Text, Container, Column, Colors, ElevatedButton, Row, Icons
+from flet import Page, View, Text, Container, Column, Colors
 import logging
 import time
 
 from app.ui.builders import Builder
-from app.services.localization import AppStrings
 
 
 class UIRouter:
@@ -20,9 +19,12 @@ class UIRouter:
         self.page.on_route_change = self.route_change
         self.page.route = self._set_navigation_bar(0)
         try:
-            if self.builder.db_manager.get_setting("is_first_launch") is None:
-                self.builder.db_manager.set_setting("is_first_launch", "false")
-                self.page.route = "/first_launch"
+            if self.builder.db_manager.get_setting("is_first_launch") == "true":
+                self.builder.db_manager.set_setting("is_first_launch", "true")
+                view = self.builder.build_first_launch_view()
+                self.page.views.clear()
+                self.page.views.append(view)
+                self.page.update()
             else:
                 view = self.builder.build_home_view()
                 self.page.views.clear()
@@ -34,7 +36,7 @@ class UIRouter:
                 content=Column(
                     [
                         Text(
-                            AppStrings.error_initializing,
+                            self.builder.localization.error_initializing,
                             size=20,
                             weight="bold",
                             color=Colors.RED,

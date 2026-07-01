@@ -87,7 +87,7 @@ class DatabaseManager:
         return image_path
 
     def get_setting(self, key: str):
-        return self.session.query(Setting.value).where(Setting.key == key).first()
+        return self.session.query(Setting.value).where(Setting.key == key).scalar()
 
     def set_setting(self, key: str, value: str = None):
         setting = self.session.query(Setting).where(Setting.key == key).first()

@@ -21,7 +21,9 @@ from flet import (
 )
 
 from app.database.manager import DatabaseManager
+from app.database.models import Car
 from app.services.connector import Connector
+from app.services.localization import Localization
 
 
 class Builder:
@@ -31,11 +33,15 @@ class Builder:
         db_manager: DatabaseManager | None = None,
         connector: Connector | None = None,
         current_image_indices: dict | None = None,
+        localization: Localization | None = None,
     ):
         self.page = page
         self.db_manager = db_manager or DatabaseManager()
         self.connector = connector or Connector()
         self.current_image_indices = current_image_indices or {}
+        self.localization = localization or Localization(
+            self.db_manager.get_setting("language")
+        )
 
     def _get_nav_bar(self, current_index: int):
         return NavigationBar(
@@ -52,7 +58,7 @@ class Builder:
             on_change=lambda e: self._handle_nav_change(e.control.selected_index),
         )
 
-    def _handle_nav_change(self, index):
+    def _handle_nav_change(self, index: int):
         match index:
             case 0:
                 self.page.go("/")
@@ -65,25 +71,22 @@ class Builder:
             case 4:
                 self.page.go("/finances")
 
-    def _create_car_card(self, car, car_images=None):
-        car_id = car.id
+    def _create_car_card(self, car: Car, car_images: list[str] | None = None):
         car_images = car_images or []
-        self.current_image_indices[car_id] = 0
+        self.current_image_indices[car.id] = 0
 
-        has_images = bool(car_images)
-
-        if has_images:
+        if car_images:
             image_container = Container(
-                content=Image(src_base64=car_images[0]),
+                content=Image(src=car_images[0]),
                 width=300,
                 height=200,
             )
 
             def on_pan_update(e):
                 if e.delta_x > 50:
-                    self._prev_image(car_id, car_images, image_container)
+                    self._prev_image(car.id, car_images, image_container)
                 elif e.delta_x < -50:
-                    self._next_image(car_id, car_images, image_container)
+                    self._next_image(car.id, car_images, image_container)
 
             image_with_swipe = GestureDetector(
                 content=image_container,
@@ -139,7 +142,7 @@ class Builder:
 
         return card
 
-    def _next_image(self, car_id, images, image_container):
+    def _next_image(self, car_id: int, images: list[str], image_container: Container):
         if not images:
             return
         if car_id not in self.current_image_indices:
@@ -153,7 +156,7 @@ class Builder:
             )
             image_container.update()
 
-    def _prev_image(self, car_id, images, image_container):
+    def _prev_image(self, car_id: int, images: list[str], image_container: Container):
         if not images:
             return
         if car_id not in self.current_image_indices:
@@ -214,6 +217,7 @@ class Builder:
             self.db_manager,
             self.connector,
             self.current_image_indices,
+            self.localization,
         )
 
     def build_first_launch_view(self) -> View:

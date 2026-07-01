@@ -96,7 +96,7 @@ class CarBuilder(Builder):
     def build_add_car_view(self) -> View:
         selected_images_paths = []
 
-        async def _on_file_picker_result(self, e: FilePickerUploadEvent):
+        async def _on_file_picker_result(e: FilePickerUploadEvent):
             if e.files:
                 for file in e.files:
                     if file.path not in selected_images_paths:
