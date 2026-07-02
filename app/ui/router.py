@@ -91,13 +91,21 @@ class UIRouter:
                 content=Column(
                     [
                         Text(
-                            "❌ ОШИБКА ПРИ ЗАГРУЗКЕ",
+                            self.builder.localization.error_loading,
                             size=20,
                             weight="bold",
                             color=Colors.RED,
                         ),
-                        Text(f"Маршрут: {e.route}", size=12, color=Colors.BLACK_87),
-                        Text(f"Ошибка: {str(ex)}", size=12, color=Colors.RED_800),
+                        Text(
+                            f"{self.builder.localization.route}: {e.route}",
+                            size=12,
+                            color=Colors.BLACK_87,
+                        ),
+                        Text(
+                            f"{self.builder.localization.error}: {str(ex)}",
+                            size=12,
+                            color=Colors.RED_800,
+                        ),
                     ],
                     alignment="center",
                     horizontal_alignment="center",

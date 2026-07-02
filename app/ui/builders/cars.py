@@ -23,7 +23,7 @@ from app.ui.builders.base import Builder
 class CarBuilder(Builder):
     def build_cars_view(self) -> View:
         cars_list = self.db_manager.get_all_cars()
-        fab = self._build_fab("/add_car", "Добавить автомобиль")
+        fab = self._build_fab("/add_car", self.localization.add_car)
 
         if not cars_list:
             empty_message = self._build_not_data_container(
@@ -33,8 +33,8 @@ class CarBuilder(Builder):
                     color=Colors.GREY_400,
                     align=Alignment.CENTER,
                 ),
-                "⚠ Нет добавленных автомобилей",
-                "Добавить автомобиль",
+                self.localization.no_added_cars,
+                self.localization.add_car,
                 "/add_car",
             )
             return View(
@@ -45,7 +45,11 @@ class CarBuilder(Builder):
                         content=Column(
                             [
                                 AppBar(
-                                    title=Text("🚗 Автомобили", size=24, weight="bold")
+                                    title=Text(
+                                        f"🚗 {self.localization.cars}",
+                                        size=24,
+                                        weight="bold",
+                                    )
                                 ),
                                 empty_message,
                             ]
@@ -70,7 +74,7 @@ class CarBuilder(Builder):
 
         content = Column(
             [
-                Text("🚗 Автомобили", size=24, weight="bold"),
+                Text(f"🚗 {self.localization.cars}", size=24, weight="bold"),
                 cars_column,
             ],
             spacing=20,
@@ -122,32 +126,33 @@ class CarBuilder(Builder):
                     image_path=image_path, object_id=car_id, object_type="car"
                 )
 
+            self._build_complete_snack_bar()
             self.page.go("/cars")
 
-        brand_input = TextField(label="Марка", width=300)
-        model_input = TextField(label="Модель", width=300)
-        year_input = TextField(label="Год выпуска", width=300)
-        plate_num_input = TextField(label="Гос. номер", width=300)
+        brand_input = TextField(label=self.localization.brand, width=300)
+        model_input = TextField(label=self.localization.model, width=300)
+        year_input = TextField(label=self.localization.year_of_production, width=300)
+        plate_num_input = TextField(label=self.localization.plate_number, width=300)
         input = Container(
             content=Column(
                 [
-                    Text("Новый автомобиль", size=24, weight="bold"),
+                    Text(self.localization.new_car, size=24, weight="bold"),
                     brand_input,
                     model_input,
                     year_input,
                     plate_num_input,
                     TextButton(
-                        "Загрузить изображения",
+                        self.localization.upload_images,
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_image_click,
                     ),
                     ElevatedButton(
-                        "Сохранить",
+                        self.localization.save,
                         icon=Icons.SAVE,
                         on_click=save_car,
                     ),
                     ElevatedButton(
-                        "Назад",
+                        self.localization.back,
                         icon=Icons.ARROW_BACK,
                         on_click=lambda e: self.page.go("/cars"),
                     ),

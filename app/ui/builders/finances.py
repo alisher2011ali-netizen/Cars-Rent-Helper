@@ -3,6 +3,9 @@ from flet import (
     Container,
     Column,
     Text,
+    TextField,
+    Dropdown,
+    DropdownOption,
     Icon,
     Icons,
     Alignment,
@@ -18,7 +21,7 @@ from app.ui.builders.base import Builder
 class FinanceBuilder(Builder):
     def build_finances_view(self) -> View:
         payments_list = self.db_manager.get_all_payments()
-        fab = self._build_fab("/add_payment", "Добавить операцию")
+        fab = self._build_fab("/add_payment", self.localization.add_operation)
 
         if not payments_list:
             empty_message = self._build_not_data_container(
@@ -28,8 +31,8 @@ class FinanceBuilder(Builder):
                     color=Colors.GREY_400,
                     align=Alignment.CENTER,
                 ),
-                "⚠ Нет истории доходов/расходов",
-                "Добавить операцию",
+                self.localization.no_operations_history,
+                self.localization.add_operation,
                 "/add_payment",
             )
             return View(
@@ -40,7 +43,11 @@ class FinanceBuilder(Builder):
                         content=Column(
                             [
                                 AppBar(
-                                    title=Text("💰 Финансы", size=24, weight="bold")
+                                    title=Text(
+                                        f"💰 {self.localization.finances}",
+                                        size=24,
+                                        weight="bold",
+                                    )
                                 ),
                                 empty_message,
                             ]
@@ -60,18 +67,23 @@ class FinanceBuilder(Builder):
         )
 
         for payment in payments_list:
-            payment_type = "Доход" if payment.type else "Расход"
+            payment_type = (
+                self.localization.income if payment.type else self.localization.expense
+            )
             text_color = Colors.GREEN_500 if payment.type else Colors.RED_500
             payment_card = Container(
                 content=Column(
                     [
                         Row(
-                            Text(f"Тип:", size=14),
-                            Text(f"{payment_type}", size=14, color=text_color),
+                            Text(f"{self.localization.type}:", size=14),
+                            Text(payment_type, size=14, color=text_color),
                         ),
-                        Text(f"Сумма: {payment.amount} руб.", size=14),
                         Text(
-                            f"Комментарий: {payment.comment}",
+                            f"{self.localization.amount}: {payment.amount} руб.",
+                            size=14,
+                        ),
+                        Text(
+                            f"{self.localization.comment}: {payment.comment}",
                             size=12,
                             color=Colors.GREY_700,
                         ),

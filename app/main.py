@@ -16,8 +16,9 @@ def main(page: Page):
     try:
         init_db()
 
+        page.fonts = {"NotoSansSC": "assets/fonts/NotoSansSC-Regular.ttf"}
         page.theme = Theme(
-            font_family="Arial",
+            font_family="NotoSansSC",
             page_transitions=PageTransitionsTheme(
                 android=PageTransitionTheme.NONE, linux=PageTransitionTheme.NONE
             ),

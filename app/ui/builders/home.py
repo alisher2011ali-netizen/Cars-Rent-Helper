@@ -15,6 +15,10 @@ class HomeBuilder(Builder):
         )
 
         if not last_added_cars:
+            empty_message = (
+                f"{self.localization.empty_home_message_1}"
+                f"{self.localization.empty_home_message_2}"
+            )
             message = Container(
                 content=Column(
                     [
@@ -25,8 +29,7 @@ class HomeBuilder(Builder):
                             align=Alignment.CENTER,
                         ),
                         Text(
-                            """Здесь пока пусто.
-Начните пользоваться приложением и эта страница заполнится.""",
+                            empty_message,
                             size=18,
                             width=400,
                             align=Alignment.CENTER,
@@ -76,7 +79,7 @@ class HomeBuilder(Builder):
             cars_column.controls.append(card)
 
         subtitle = Text(
-            "Последние добавленные автомобили",
+            self.localization.last_added_cars,
             size=16,
             weight="w500",
             color=Colors.GREY_800,

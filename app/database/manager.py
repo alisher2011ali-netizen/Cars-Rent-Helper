@@ -97,3 +97,18 @@ class DatabaseManager:
             new_setting = Setting(key=key, value=value)
             self.session.add(new_setting)
         self.session.commit()
+
+    def add_payment(
+        self,
+        amount: float,
+        comment: str | None = None,
+        rental_id: int | None = None,
+    ) -> Payment:
+        new_payment = Payment(
+            rental_id=rental_id,
+            amount=amount,
+            comment=comment,
+        )
+        self.session.add(new_payment)
+        self.session.commit()
+        return new_payment

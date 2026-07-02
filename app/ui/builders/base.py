@@ -46,12 +46,20 @@ class Builder:
     def _get_nav_bar(self, current_index: int):
         return NavigationBar(
             destinations=[
-                NavigationBarDestination(icon=Icons.HOME, label="Главная"),
-                NavigationBarDestination(icon=Icons.CAR_RENTAL, label="Машины"),
-                NavigationBarDestination(icon=Icons.PERSON, label="Водители"),
-                NavigationBarDestination(icon=Icons.KEY, label="Аренды"),
                 NavigationBarDestination(
-                    icon=Icons.ATTACH_MONEY_OUTLINED, label="Финансы"
+                    icon=Icons.HOME, label=self.localization.main_menu
+                ),
+                NavigationBarDestination(
+                    icon=Icons.CAR_RENTAL, label=self.localization.cars
+                ),
+                NavigationBarDestination(
+                    icon=Icons.PERSON, label=self.localization.tenants
+                ),
+                NavigationBarDestination(
+                    icon=Icons.KEY, label=self.localization.rentals
+                ),
+                NavigationBarDestination(
+                    icon=Icons.ATTACH_MONEY_OUTLINED, label=self.localization.finances
                 ),
             ],
             selected_index=current_index,
@@ -101,7 +109,7 @@ class Builder:
         else:
             image_container = Container(
                 content=Text(
-                    "Нет изображения",
+                    self.localization.no_images,
                     size=14,
                     weight="bold",
                     color=Colors.GREY_700,
@@ -110,7 +118,7 @@ class Builder:
             )
             image_with_swipe = image_container
             indicator = Text(
-                "Нет изображения",
+                self.localization.no_images,
                 size=12,
                 weight="bold",
                 color=Colors.GREY_700,
@@ -170,10 +178,9 @@ class Builder:
             )
             image_container.update()
 
-    @staticmethod
-    def _build_complete_snack_bar(object: str) -> SnackBar:
+    def _build_complete_snack_bar(self) -> SnackBar:
         return SnackBar(
-            content=Text(f"Новый {object} успешно добавлен!"),
+            content=Text(self.localization.added_successfully),
             action=SnackBarAction(label="OK"),
             duration=Duration(seconds=5),
         )

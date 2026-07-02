@@ -27,8 +27,8 @@ class RentalBuilder(Builder):
                     color=Colors.GREY_400,
                     align=Alignment.CENTER,
                 ),
-                "⚠ Нет истории аренды машин",
-                "Добавить аренду",
+                self.localization.no_rentals_history,
+                self.localization.add_rental,
                 "/add_rental",
             )
             return View(
@@ -38,7 +38,13 @@ class RentalBuilder(Builder):
                     Container(
                         content=Column(
                             [
-                                AppBar(title=Text("📋 Аренды", size=24, weight="bold")),
+                                AppBar(
+                                    title=Text(
+                                        f"📋 {self.localization.rentals}",
+                                        size=24,
+                                        weight="bold",
+                                    )
+                                ),
                                 empty_message,
                             ]
                         ),
@@ -59,35 +65,40 @@ class RentalBuilder(Builder):
         for rental in rentals_list:
             match rental.status:
                 case "active":
-                    status_text = "Активно"
+                    status_text = self.localization.active
                     status_color = Colors.GREEN_500
                 case "completed":
-                    status_text = "Завершено"
+                    status_text = self.localization.completed
                     status_color = Colors.BLACK_87
                 case "cancelled":
-                    status_text = "Отменено"
+                    status_text = self.localization.cancelled
                     status_color = Colors.RED_500
 
             rental_card = Container(
                 content=Column(
                     [
                         Text(
-                            f"Статус: {status_text}",
+                            f"{self.localization.status}: {status_text}",
                             size=16,
                             color=status_color,
                             weight="bold",
                         ),
                         Text(
-                            f"Машина: {rental.car.brand} {rental.car.model} ({rental.car.plate_number})",
+                            f"{self.localization.car}: {rental.car.brand} {rental.car.model} ({rental.car.plate_number})",
                             size=14,
                         ),
                         Text(
-                            f"Водитель: {rental.tenant.fullname} ({rental.tenant.phone_number})",
+                            f"{self.localization.tenant}: {rental.tenant.fullname} ({rental.tenant.phone_number})",
                             size=14,
                         ),
-                        Text(f"Доход в сумме: {rental.total_cost} руб."),
-                        Text(f"Начало: {rental.start_date}", size=14),
-                        Text(f"Конец: {rental.end_date}", size=14),
+                        Text(
+                            f"{self.localization.income_in_total}: {rental.total_cost} руб."
+                        ),
+                        Text(
+                            f"{self.localization.start}: {rental.start_date}",
+                            size=14,
+                        ),
+                        Text(f"{self.localization.end}: {rental.end_date}", size=14),
                     ],
                     spacing=5,
                 ),

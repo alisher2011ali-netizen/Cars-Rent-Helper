@@ -26,15 +26,15 @@ from app.ui.builders.base import Builder
 class TenantBuilder(Builder):
     def build_tenants_view(self) -> View:
         tenants_list = self.db_manager.get_all_tenants()
-        fab = self._build_fab("/add_tenant", "Добавить водителя")
+        fab = self._build_fab("/add_tenant", self.localization.add_tenant)
 
         if not tenants_list:
             empty_message = self._build_not_data_container(
                 Icon(
                     Icons.PERSON, size=60, color=Colors.GREY_400, align=Alignment.CENTER
                 ),
-                "⚠ Нет добавленных водителей",
-                "Добавить водителя",
+                self.localization.no_added_tenants,
+                self.localization.add_tenant,
                 "/add_tenant",
             )
             return View(
@@ -45,7 +45,11 @@ class TenantBuilder(Builder):
                         content=Column(
                             [
                                 AppBar(
-                                    title=Text("👤 Водители", size=24, weight="bold")
+                                    title=Text(
+                                        f"👤 {self.localization.tenants}",
+                                        size=24,
+                                        weight="bold",
+                                    )
                                 ),
                                 empty_message,
                             ]
@@ -70,9 +74,12 @@ class TenantBuilder(Builder):
                             controls=[
                                 Container(
                                     Text(f"{tenant.fullname}", size=20, weight="bold"),
-                                    Text(f"Телефон: {tenant.phone_number}", size=16),
+                                    Text(
+                                        f"{self.localization.phone}: {tenant.phone_number}",
+                                        size=16,
+                                    ),
                                     TextButton(
-                                        "Подробнее",
+                                        self.localization.details,
                                         on_click=lambda e: self.page.go(
                                             f"/details_{tenant.id}"
                                         ),
@@ -191,45 +198,46 @@ class TenantBuilder(Builder):
                     category="drive_license",
                 )
 
+            self._build_complete_snack_bar()
             self.page.go("/tenants")
 
-        fullname_input = TextField(label="ФИО", width=300)
-        phone_input = TextField(label="Телефон", width=300)
-        debt_sum_input = TextField(label="Сумма долга (руб.)", width=300)
+        fullname_input = TextField(label=self.localization.fullname, width=300)
+        phone_input = TextField(label=self.localization.phone, width=300)
+        debt_sum_input = TextField(label=self.localization.debt_in_total, width=300)
         input = Container(
             content=Column(
                 [
-                    Text("Новый водитель", size=24, weight="bold"),
+                    Text(self.localization.new_tenant, size=24, weight="bold"),
                     fullname_input,
                     phone_input,
                     debt_sum_input,
                     TextButton(
-                        "Загрузить аватар",
+                        self.localization.upload_avatar,
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_avatar_click,
                     ),
                     TextButton(
-                        "Загрузить паспорт",
+                        self.localization.upload_passport,
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_passport_click,
                     ),
                     TextButton(
-                        "Загрузить суб-паспорт",
+                        self.localization.upload_subpassport,
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_sub_passport_click,
                     ),
                     TextButton(
-                        "Загрузить водительское удостоверение",
+                        self.localization.upload_driver_license,
                         icon=Icons.UPLOAD_FILE,
                         on_click=pick_drive_license_click,
                     ),
                     ElevatedButton(
-                        "Сохранить",
+                        self.localization.save,
                         icon=Icons.SAVE,
                         on_click=save_tenant,
                     ),
                     ElevatedButton(
-                        "Назад",
+                        self.localization.back,
                         icon=Icons.ARROW_BACK,
                         on_click=lambda e: self.page.go("/tenants"),
                     ),
