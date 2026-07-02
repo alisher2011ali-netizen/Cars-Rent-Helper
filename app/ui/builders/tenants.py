@@ -18,6 +18,7 @@ from flet import (
     FilePicker,
     FilePickerFileType,
     FilePickerUploadEvent,
+    SnackBar,
 )
 
 from app.ui.builders.base import Builder
@@ -61,36 +62,58 @@ class TenantBuilder(Builder):
                 floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
             )
 
+        def on_phone_number_tap(tenant_phone: str):
+            self.page.clipboard.set(tenant_phone)
+            snack = SnackBar(self.localization.copied, open=True)
+            self.page.overlay.append(snack)
+
         tenants_content = Column(
             controls=[],
             expand=True,
         )
 
         for tenant in tenants_list:
+            if not tenant.avatar:
+                avatar = CircleAvatar(
+                    content=Text(tenant.fullname[0].upper(), color=Colors.WHITE),
+                    bgcolor=Colors.BLUE_GREY_400,
+                    radius=30,
+                )
+            else:
+                avatar = CircleAvatar(
+                    content=Image(src=tenant.avatar.path, align=Alignment.CENTER),
+                )
             tenant_card = Container(
                 content=Column(
                     [
                         Row(
                             controls=[
                                 Container(
-                                    Text(f"{tenant.fullname}", size=20, weight="bold"),
-                                    Text(
-                                        f"{self.localization.phone}: {tenant.phone_number}",
-                                        size=16,
-                                    ),
-                                    TextButton(
-                                        self.localization.details,
-                                        on_click=lambda e: self.page.go(
-                                            f"/details_{tenant.id}"
-                                        ),
+                                    Column(
+                                        [
+                                            Text(
+                                                f"{tenant.fullname}",
+                                                size=20,
+                                                weight="bold",
+                                                width=280,
+                                            ),
+                                            Text(
+                                                f"{self.localization.phone}: {tenant.phone_number}",
+                                                size=16,
+                                                on_tap=lambda e: on_phone_number_tap(
+                                                    tenant.phone_number
+                                                ),
+                                            ),
+                                            TextButton(
+                                                self.localization.details,
+                                                on_click=lambda e, t_id: self.page.go(
+                                                    f"/details_{t_id}"
+                                                ),
+                                            ),
+                                        ]
                                     ),
                                 ),
-                                CircleAvatar(
-                                    content=Image(
-                                        src=tenant.avatar.path,
-                                        align=Alignment.CENTER_RIGHT,
-                                    )
-                                ),
+                                avatar,
                             ]
                         )
                     ],

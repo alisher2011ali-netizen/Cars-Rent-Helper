@@ -8,17 +8,13 @@ class HomeBuilder(Builder):
         last_added_cars, images_dict = self.connector.get_last_added_cars()
 
         title = Text(
-            "🚗 Cars Rent Helper",
+            f"🚗 {self.localization.app_name}",
             size=28,
             weight="bold",
             color=Colors.BLUE_700,
         )
 
         if not last_added_cars:
-            empty_message = (
-                f"{self.localization.empty_home_message_1}"
-                f"{self.localization.empty_home_message_2}"
-            )
             message = Container(
                 content=Column(
                     [
@@ -29,7 +25,7 @@ class HomeBuilder(Builder):
                             align=Alignment.CENTER,
                         ),
                         Text(
-                            empty_message,
+                            self.localization.empty_home_message,
                             size=18,
                             width=400,
                             align=Alignment.CENTER,

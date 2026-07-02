@@ -3,13 +3,25 @@ from flet import (
     Container,
     Column,
     Text,
+    TextField,
     Icon,
     Icons,
     Alignment,
     Colors,
     AppBar,
     FloatingActionButtonLocation,
+    Dropdown,
+    DropdownOption,
+    SnackBar,
+    KeyboardType,
+    DatePicker,
+    Row,
+    ElevatedButton,
+    MainAxisAlignment,
+    Radio,
+    RadioGroup,
 )
+from datetime import datetime, timedelta
 
 from app.ui.builders.base import Builder
 
@@ -115,4 +127,181 @@ class RentalBuilder(Builder):
             controls=[rentals_content],
             floating_action_button=fab,
             floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+        )
+
+    def build_add_rental_view(self) -> View:
+        cars = self.db_manager.get_all_cars()
+        tenants = self.db_manager.get_all_tenants()
+
+        if not cars or not tenants:
+            snack = SnackBar(
+                Text(self.localization.no_cars_or_tenants),
+                bgcolor=Colors.RED_500,
+                open=True,
+            )
+            self.page.overlay.append(snack)
+            return self.build_rentals_view()
+
+        car_options = [
+            DropdownOption(
+                key=car.id, text=f"{car.brand} {car.model} ({car.plate_number})"
+            )
+            for car in cars
+        ]
+        car_dropdown = Dropdown(
+            options=car_options,
+            value=car_options[0].key if car_options else None,
+            width=300,
+        )
+
+        tenant_options = [
+            DropdownOption(
+                key=tenant.id, text=f"{tenant.fullname} ({tenant.phone_number})"
+            )
+            for tenant in tenants
+        ]
+        tenant_dropdown = Dropdown(
+            options=tenant_options,
+            width=300,
+        )
+
+        selected_car = None
+        selected_tenant = None
+
+        dates_info_text = Text("Срок: 7 дней", size=16, weight="bold")
+        total_price_text = Text(
+            f"{self.localization.total_to_be_paid}: 0 руб.",
+            size=20,
+            weight="bold",
+            color=Colors.GREEN_700,
+        )
+
+        price_field = TextField(
+            label="Стоимость за неделю",
+            value="0",
+            keyboard_type=KeyboardType.NUMBER,
+            width=400,
+            on_change=lambda e: recalculate_total(),
+        )
+
+        def handle_date_change(e):
+            recalculate_total()
+
+        start_picker = DatePicker(on_change=handle_date_change)
+        end_picker = DatePicker(on_change=handle_date_change)
+
+        manual_date_row = Row(
+            [
+                ElevatedButton(
+                    self.localization.start,
+                    icon=Icons.CALENDAR_MONTH,
+                    on_click=lambda e: start_picker.pick_date(),
+                ),
+                ElevatedButton(
+                    self.localization.end,
+                    icon=Icons.CALENDAR_MONTH,
+                    on_click=lambda e: end_picker.pick_date(),
+                ),
+            ],
+            alignment=MainAxisAlignment.CENTER,
+            visible=False,
+        )
+
+        def recalculate_total():
+            tariff = tariff_radio.value
+            try:
+                entered_price = float(price_field.value or 0)
+            except ValueError:
+                entered_price = 0
+
+            if tariff == "weekly":
+                start_date = datetime.now()
+                end_date = start_date + timedelta(days=7)
+                days = 7
+                total_amount = entered_price
+                dates_info_text.value = f"Срок: {days} дней ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+
+            elif tariff == "monthly":
+                start_date = datetime.now()
+                end_date = start_date + timedelta(days=30)
+                days = 30
+                total_amount = entered_price
+                dates_info_text.value = f"Срок: 30 дней ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+
+            elif tariff == "custom":
+                manual_date_row.visible = True
+                if start_picker.value:
+                    start_date = start_picker.value
+                if end_picker.value:
+                    end_date = end_picker.value
+
+                days = (end_date - start_date).days
+                total_amount = entered_price
+                dates_info_text.value = f"Срок: {days} дн. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+
+            total_price_text.value = (
+                f"{self.localization.total_to_be_paid}: {total_amount:.2f} руб."
+            )
+
+            dates_info_text.update()
+            total_price_text.update()
+            manual_date_row.update()
+
+        def on_tariff_change(e):
+            tariff = e.control.value
+            if tariff == "weekly":
+                price_field.label = "Стоимость за неделю"
+            elif tariff == "monthly":
+                price_field.label = "Стоимость за месяц"
+            elif tariff == "custom":
+                price_field.label = "Стоимость за выбранный период"
+
+            price_field.update()
+            recalculate_total()
+
+        tariff_radio = RadioGroup(
+            content=Row(
+                [
+                    Radio(value="weekly", label=self.localization.weekly),
+                    Radio(value="monthly", label=self.localization.monthly),
+                    Radio(value="custom", label=self.localization.another_term),
+                ],
+                alignment=MainAxisAlignment.CENTER,
+            ),
+            value="weekly",
+            on_change=on_tariff_change,
+        )
+
+        def on_click_save(e):
+            pass
+
+        save_button = ElevatedButton(
+            self.localization.save, icon=Icons.SAVE, on_click=on_click_save
+        )
+
+        content = Column(
+            [
+                Text(
+                    f"📋 {self.localization.add_rental}",
+                    size=24,
+                    weight="bold",
+                ),
+                car_dropdown,
+                tenant_dropdown,
+                tariff_radio,
+                price_field,
+                dates_info_text,
+                total_price_text,
+                manual_date_row,
+                save_button,
+            ],
+            alignment=MainAxisAlignment.CENTER,
+            spacing=20,
+        )
+        return View(
+            route="/add_rental",
+            navigation_bar=self._get_nav_bar(3),
+            controls=[
+                Container(content=content, padding=20, alignment=Alignment.CENTER)
+            ],
         )

@@ -54,6 +54,8 @@
     "upload_passport": "上传护照",
     "upload_subpassport": "上传副护照",
     "upload_driver_license": "上传驾驶证",
-    "empty_home_message_1": "这里空空如也。",
-    "empty_home_message_2": "开始使用应用程序，此页面就会填满。"
+    "empty_home_message": "这里空空如也。开始使用应用程序，此页面就会填满。",
+    "new_operation": "新交易",
+    "new_rental": "新租赁",
+    "no_added_rentals": "⚠ 没有新增租金"
 }

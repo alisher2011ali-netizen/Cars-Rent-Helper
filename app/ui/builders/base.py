@@ -268,20 +268,14 @@ class Builder:
         return self._make(TenantBuilder).build_add_tenant_view()
 
     def build_add_rental_view(self) -> View:
-        return self._build_placeholder_view(
-            route="/add_rental",
-            title="Добавить аренду",
-            description="Страница добавления аренды ещё не реализована.",
-            nav_index=3,
-        )
+        from app.ui.builders.rentals import RentalBuilder
+
+        return self._make(RentalBuilder).build_add_rental_view()
 
     def build_add_payment_view(self) -> View:
-        return self._build_placeholder_view(
-            route="/add_payment",
-            title="Добавить операцию",
-            description="Страница добавления платежа ещё не реализована.",
-            nav_index=4,
-        )
+        from app.ui.builders.finances import FinanceBuilder
+
+        return self._make(FinanceBuilder).build_add_payment_view()
 
     def _build_placeholder_view(
         self,

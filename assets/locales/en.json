@@ -54,6 +54,8 @@
     "upload_passport": "Upload passport",
     "upload_subpassport": "Upload sub-passport",
     "upload_driver_license": "Upload driver's license",
-    "empty_home_message_1": "Nothing here yet.",
-    "empty_home_message_2": "Start using the app and this page will fill up."
+    "empty_home_message": "Nothing here yet. Start using the app and this page will fill up.",
+    "new_operation": "New transaction",
+    "new_rental": "New rental",
+    "no_added_rentals": "⚠ No rentals added yet"
 }
