@@ -1,51 +1,34 @@
-from flet import (
-    View,
-    Container,
-    Column,
-    Text,
-    Icon,
-    Icons,
-    Alignment,
-    Colors,
-    AppBar,
-    FilePicker,
-    FilePickerFileType,
-    FilePickerUploadEvent,
-    TextField,
-    TextButton,
-    ElevatedButton,
-    FloatingActionButtonLocation,
-)
+import flet as ft
 
 from app.ui.builders.base import Builder
 
 
 class CarBuilder(Builder):
-    def build_cars_view(self) -> View:
+    def build_cars_view(self) -> ft.View:
         cars_list = self.db_manager.get_all_cars()
         fab = self._build_fab("/add_car", self.localization.add_car)
 
         if not cars_list:
             empty_message = self._build_not_data_container(
-                Icon(
-                    Icons.DIRECTIONS_CAR,
+                ft.Icon(
+                    ft.Icons.DIRECTIONS_CAR,
                     size=60,
-                    color=Colors.GREY_400,
-                    align=Alignment.CENTER,
+                    color=ft.Colors.GREY_400,
+                    align=ft.Alignment.CENTER,
                 ),
                 self.localization.no_added_cars,
                 self.localization.add_car,
                 "/add_car",
             )
-            return View(
+            return ft.View(
                 route="/cars",
                 navigation_bar=self._get_nav_bar(1),
                 controls=[
-                    Container(
-                        content=Column(
+                    ft.Container(
+                        content=ft.Column(
                             [
-                                AppBar(
-                                    title=Text(
+                                ft.AppBar(
+                                    title=ft.Text(
                                         f"🚗 {self.localization.cars}",
                                         size=24,
                                         weight="bold",
@@ -54,17 +37,17 @@ class CarBuilder(Builder):
                                 empty_message,
                             ]
                         ),
-                        alignment=Alignment.CENTER,
+                        alignment=ft.Alignment.CENTER,
                     )
                 ],
                 floating_action_button=fab,
-                floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+                floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
             )
 
-        cars_column = Column(
+        cars_column = ft.Column(
             spacing=20,
-            horizontal_alignment=Alignment.CENTER,
-            alignment=Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
+            alignment=ft.Alignment.CENTER,
         )
 
         for car in cars_list:
@@ -72,16 +55,16 @@ class CarBuilder(Builder):
             card = self._create_car_card(car, car_images)
             cars_column.controls.append(card)
 
-        content = Column(
+        content = ft.Column(
             [
-                Text(f"🚗 {self.localization.cars}", size=24, weight="bold"),
+                ft.Text(f"🚗 {self.localization.cars}", size=24, weight="bold"),
                 cars_column,
             ],
             spacing=20,
-            horizontal_alignment=Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
         )
 
-        cars_content = Container(
+        cars_content = ft.Container(
             content=content,
             padding=20,
             width=self.page.width,
@@ -89,28 +72,28 @@ class CarBuilder(Builder):
             expand=True,
         )
 
-        return View(
+        return ft.View(
             route="/cars",
             navigation_bar=self._get_nav_bar(1),
             controls=[cars_content],
             floating_action_button=fab,
-            floating_action_button_location=FloatingActionButtonLocation.END_FLOAT,
+            floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
         )
 
-    def build_add_car_view(self) -> View:
+    def build_add_car_view(self) -> ft.View:
         selected_images_paths = []
 
-        async def _on_file_picker_result(e: FilePickerUploadEvent):
+        async def _on_file_picker_result(e: ft.FilePickerUploadEvent):
             if e.files:
                 for file in e.files:
                     if file.path not in selected_images_paths:
                         selected_images_paths.append(file.path)
 
-        file_picker = FilePicker(on_upload=_on_file_picker_result)
+        file_picker = ft.FilePicker(on_upload=_on_file_picker_result)
 
         async def pick_image_click(e):
             await file_picker.pick_files(
-                allow_multiple=True, file_type=FilePickerFileType.IMAGE
+                allow_multiple=True, file_type=ft.FilePickerFileType.IMAGE
             )
 
         async def save_car(e=None):
@@ -129,41 +112,41 @@ class CarBuilder(Builder):
             self._build_complete_snack_bar()
             self.page.go("/cars")
 
-        brand_input = TextField(label=self.localization.brand, width=300)
-        model_input = TextField(label=self.localization.model, width=300)
-        year_input = TextField(label=self.localization.year_of_production, width=300)
-        plate_num_input = TextField(label=self.localization.plate_number, width=300)
-        input = Container(
-            content=Column(
+        brand_input = ft.TextField(label=self.localization.brand, width=300)
+        model_input = ft.TextField(label=self.localization.model, width=300)
+        year_input = ft.TextField(label=self.localization.year_of_production, width=300)
+        plate_num_input = ft.TextField(label=self.localization.plate_number, width=300)
+        input = ft.Container(
+            content=ft.Column(
                 [
-                    Text(self.localization.new_car, size=24, weight="bold"),
+                    ft.Text(self.localization.new_car, size=24, weight="bold"),
                     brand_input,
                     model_input,
                     year_input,
                     plate_num_input,
-                    TextButton(
+                    ft.TextButton(
                         self.localization.upload_images,
-                        icon=Icons.UPLOAD_FILE,
+                        icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_image_click,
                     ),
-                    ElevatedButton(
+                    ft.ElevatedButton(
                         self.localization.save,
-                        icon=Icons.SAVE,
+                        icon=ft.Icons.SAVE,
                         on_click=save_car,
                     ),
-                    ElevatedButton(
+                    ft.ElevatedButton(
                         self.localization.back,
-                        icon=Icons.ARROW_BACK,
+                        icon=ft.Icons.ARROW_BACK,
                         on_click=lambda e: self.page.go("/cars"),
                     ),
                 ],
                 spacing=15,
             ),
             padding=40,
-            alignment=Alignment.CENTER,
+            alignment=ft.Alignment.CENTER,
         )
 
-        return View(
+        return ft.View(
             route="/add_car",
             navigation_bar=self._get_nav_bar(1),
             controls=[input],

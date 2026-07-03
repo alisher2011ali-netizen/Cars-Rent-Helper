@@ -1,24 +1,4 @@
-from flet import (
-    Page,
-    View,
-    Container,
-    Column,
-    Text,
-    TextButton,
-    Image,
-    GestureDetector,
-    Icon,
-    Icons,
-    NavigationBar,
-    NavigationBarDestination,
-    Colors,
-    Alignment,
-    FloatingActionButton,
-    SnackBar,
-    SnackBarAction,
-    Duration,
-    Tooltip,
-)
+import flet as ft
 
 from app.database.manager import DatabaseManager
 from app.database.models import Car
@@ -29,7 +9,7 @@ from app.services.localization import Localization
 class Builder:
     def __init__(
         self,
-        page: Page,
+        page: ft.Page,
         db_manager: DatabaseManager | None = None,
         connector: Connector | None = None,
         current_image_indices: dict | None = None,
@@ -44,22 +24,23 @@ class Builder:
         )
 
     def _get_nav_bar(self, current_index: int):
-        return NavigationBar(
+        return ft.NavigationBar(
             destinations=[
-                NavigationBarDestination(
-                    icon=Icons.HOME, label=self.localization.main_menu
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.HOME, label=self.localization.main_menu
                 ),
-                NavigationBarDestination(
-                    icon=Icons.CAR_RENTAL, label=self.localization.cars
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.CAR_RENTAL, label=self.localization.cars
                 ),
-                NavigationBarDestination(
-                    icon=Icons.PERSON, label=self.localization.tenants
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.PERSON, label=self.localization.tenants
                 ),
-                NavigationBarDestination(
-                    icon=Icons.KEY, label=self.localization.rentals
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.KEY, label=self.localization.rentals
                 ),
-                NavigationBarDestination(
-                    icon=Icons.ATTACH_MONEY_OUTLINED, label=self.localization.finances
+                ft.NavigationBarDestination(
+                    icon=ft.Icons.ATTACH_MONEY_OUTLINED,
+                    label=self.localization.finances,
                 ),
             ],
             selected_index=current_index,
@@ -84,8 +65,8 @@ class Builder:
         self.current_image_indices[car.id] = 0
 
         if car_images:
-            image_container = Container(
-                content=Image(src=car_images[0]),
+            image_container = ft.Container(
+                content=ft.Image(src=car_images[0]),
                 width=300,
                 height=200,
             )
@@ -96,38 +77,38 @@ class Builder:
                 elif e.delta_x < -50:
                     self._next_image(car.id, car_images, image_container)
 
-            image_with_swipe = GestureDetector(
+            image_with_swipe = ft.GestureDetector(
                 content=image_container,
                 on_pan_update=on_pan_update,
             )
-            indicator = Text(
+            indicator = ft.Text(
                 f"1/{len(car_images)}",
                 size=12,
                 weight="bold",
-                color=Colors.BLUE_700,
+                color=ft.Colors.BLUE_700,
             )
         else:
-            image_container = Container(
-                content=Text(
+            image_container = ft.Container(
+                content=ft.Text(
                     self.localization.no_images,
                     size=14,
                     weight="bold",
-                    color=Colors.GREY_700,
+                    color=ft.Colors.GREY_700,
                 ),
-                bgcolor=Colors.GREY_200,
+                bgcolor=ft.Colors.GREY_200,
             )
             image_with_swipe = image_container
-            indicator = Text(
+            indicator = ft.Text(
                 self.localization.no_images,
                 size=12,
                 weight="bold",
-                color=Colors.GREY_700,
+                color=ft.Colors.GREY_700,
             )
 
-        card = Container(
-            content=Column(
+        card = ft.Container(
+            content=ft.Column(
                 [
-                    Text(
+                    ft.Text(
                         f"{car.brand} {car.model} ({car.plate_number})",
                         size=14,
                         weight="bold",
@@ -135,13 +116,13 @@ class Builder:
                     image_with_swipe,
                     indicator,
                 ],
-                alignment=Alignment.CENTER,
-                horizontal_alignment=Alignment.CENTER,
+                alignment=ft.Alignment.CENTER,
+                horizontal_alignment=ft.Alignment.CENTER,
                 spacing=10,
             ),
             padding=15,
             border_radius=12,
-            bgcolor=Colors.GREY_100,
+            bgcolor=ft.Colors.GREY_100,
         )
 
         card.image_container = image_container
@@ -150,7 +131,9 @@ class Builder:
 
         return card
 
-    def _next_image(self, car_id: int, images: list[str], image_container: Container):
+    def _next_image(
+        self, car_id: int, images: list[str], image_container: ft.Container
+    ):
         if not images:
             return
         if car_id not in self.current_image_indices:
@@ -159,12 +142,14 @@ class Builder:
         current = self.current_image_indices[car_id]
         if current < len(images) - 1:
             self.current_image_indices[car_id] += 1
-            image_container.content = Image(
+            image_container.content = ft.Image(
                 src_base64=images[self.current_image_indices[car_id]]
             )
             image_container.update()
 
-    def _prev_image(self, car_id: int, images: list[str], image_container: Container):
+    def _prev_image(
+        self, car_id: int, images: list[str], image_container: ft.Container
+    ):
         if not images:
             return
         if car_id not in self.current_image_indices:
@@ -173,49 +158,49 @@ class Builder:
         current = self.current_image_indices[car_id]
         if current > 0:
             self.current_image_indices[car_id] -= 1
-            image_container.content = Image(
+            image_container.content = ft.Image(
                 src_base64=images[self.current_image_indices[car_id]]
             )
             image_container.update()
 
-    def _build_complete_snack_bar(self) -> SnackBar:
-        return SnackBar(
-            content=Text(self.localization.added_successfully),
-            action=SnackBarAction(label="OK"),
-            duration=Duration(seconds=5),
+    def _build_complete_snack_bar(self) -> ft.SnackBar:
+        return ft.SnackBar(
+            content=ft.Text(self.localization.added_successfully),
+            action=ft.SnackBarAction(label="OK"),
+            duration=ft.Duration(seconds=5),
         )
 
     def _build_not_data_container(
-        self, icon: Icon, text: str, button_text: str, route: str
-    ) -> Container:
-        return Container(
-            content=Column(
+        self, icon: ft.Icon, text: str, button_text: str, route: str
+    ) -> ft.Container:
+        return ft.Container(
+            content=ft.Column(
                 [
                     icon,
-                    Text(
+                    ft.Text(
                         text,
                         size=18,
                         weight="bold",
-                        color=Colors.BLACK_87,
-                        align=Alignment.CENTER,
+                        color=ft.Colors.BLACK_87,
+                        align=ft.Alignment.CENTER,
                     ),
-                    TextButton(
+                    ft.TextButton(
                         button_text,
-                        icon=Icons.ADD,
+                        icon=ft.Icons.ADD,
                         on_click=lambda _: self.page.go(route),
-                        align=Alignment.CENTER,
+                        align=ft.Alignment.CENTER,
                     ),
                 ],
             ),
             padding=40,
-            alignment=Alignment.CENTER,
+            alignment=ft.Alignment.CENTER,
         )
 
-    def _build_fab(self, route: str, text: str) -> FloatingActionButton:
-        return FloatingActionButton(
-            icon=Icons.ADD,
+    def _build_fab(self, route: str, text: str) -> ft.FloatingActionButton:
+        return ft.FloatingActionButton(
+            icon=ft.Icons.ADD,
             on_click=lambda e: self.page.go(route),
-            tooltip=Tooltip(text),
+            tooltip=ft.Tooltip(text),
         )
 
     def _make(self, builder_cls):
@@ -283,28 +268,28 @@ class Builder:
         title: str,
         description: str,
         nav_index: int,
-    ) -> View:
-        content = Column(
+    ) -> ft.View:
+        content = ft.Column(
             [
-                Text(title, size=24, weight="bold"),
-                Text(description, size=16, color=Colors.GREY_700),
+                ft.Text(title, size=24, weight="bold"),
+                ft.Text(description, size=16, color=ft.Colors.GREY_700),
             ],
-            alignment=Alignment.CENTER,
-            horizontal_alignment=Alignment.CENTER,
+            alignment=ft.Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
             spacing=20,
         )
 
-        return View(
+        return ft.View(
             route=route,
             navigation_bar=self._get_nav_bar(nav_index),
             controls=[
-                Container(
+                ft.Container(
                     content=content,
                     padding=40,
-                    bgcolor=Colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,
                     width=self.page.width,
                     height=self.page.height - 80,
-                    alignment=Alignment.CENTER,
+                    alignment=ft.Alignment.CENTER,
                 )
             ],
         )

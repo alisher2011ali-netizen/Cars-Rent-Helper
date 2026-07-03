@@ -1,4 +1,4 @@
-from flet import Page, View, Text, Container, Column, Colors
+import flet as ft
 import logging
 import time
 
@@ -6,7 +6,7 @@ from app.ui.builders import Builder
 
 
 class UIRouter:
-    def __init__(self, page: Page):
+    def __init__(self, page: ft.Page):
         self.page = page
         self.builder = Builder(self.page)
 
@@ -32,26 +32,26 @@ class UIRouter:
                 self.page.update()
         except Exception as ex:
             logging.exception("An error occurred while initializing.")
-            error_content = Container(
-                content=Column(
+            error_content = ft.Container(
+                content=ft.Column(
                     [
-                        Text(
+                        ft.Text(
                             self.builder.localization.error_initializing,
                             size=20,
                             weight="bold",
-                            color=Colors.RED,
+                            color=ft.Colors.RED,
                         ),
-                        Text(str(ex), size=14, color=Colors.RED_800),
+                        ft.Text(str(ex), size=14, color=ft.Colors.RED_800),
                     ],
                     alignment="center",
                     horizontal_alignment="center",
                     spacing=20,
                 ),
                 padding=40,
-                bgcolor=Colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 expand=True,
             )
-            error_view = View(route="/", controls=[error_content])
+            error_view = ft.View(route="/", controls=[error_content])
             self.page.views.clear()
             self.page.views.append(error_view)
             self.page.update()
@@ -87,24 +87,24 @@ class UIRouter:
                     view = self.builder.build_home_view()
         except Exception as ex:
             logging.exception(f"An error occurred while changing route to {e.route}.")
-            error_content = Container(
-                content=Column(
+            error_content = ft.Container(
+                content=ft.Column(
                     [
-                        Text(
+                        ft.Text(
                             self.builder.localization.error_loading,
                             size=20,
                             weight="bold",
-                            color=Colors.RED,
+                            color=ft.Colors.RED,
                         ),
-                        Text(
+                        ft.Text(
                             f"{self.builder.localization.route}: {e.route}",
                             size=12,
-                            color=Colors.BLACK_87,
+                            color=ft.Colors.BLACK_87,
                         ),
-                        Text(
+                        ft.Text(
                             f"{self.builder.localization.error}: {str(ex)}",
                             size=12,
-                            color=Colors.RED_800,
+                            color=ft.Colors.RED_800,
                         ),
                     ],
                     alignment="center",
@@ -112,10 +112,10 @@ class UIRouter:
                     spacing=15,
                 ),
                 padding=40,
-                bgcolor=Colors.WHITE,
+                bgcolor=ft.Colors.WHITE,
                 expand=True,
             )
-            view = View(
+            view = ft.View(
                 route="/error",
                 controls=[error_content],
             )

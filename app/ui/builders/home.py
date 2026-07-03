@@ -1,68 +1,68 @@
-from flet import View, Container, Column, Text, Icon, Icons, Alignment, Colors
+import flet as ft
 
 from app.ui.builders.base import Builder
 
 
 class HomeBuilder(Builder):
-    def build_home_view(self) -> View:
+    def build_home_view(self) -> ft.View:
         last_added_cars, images_dict = self.connector.get_last_added_cars()
 
-        title = Text(
+        title = ft.Text(
             f"🚗 {self.localization.app_name}",
             size=28,
             weight="bold",
-            color=Colors.BLUE_700,
+            color=ft.Colors.BLUE_700,
         )
 
         if not last_added_cars:
-            message = Container(
-                content=Column(
+            message = ft.Container(
+                content=ft.Column(
                     [
-                        Icon(
-                            Icons.HOME_FILLED,
+                        ft.Icon(
+                            ft.Icons.HOME_FILLED,
                             size=60,
-                            color=Colors.GREY_400,
-                            align=Alignment.CENTER,
+                            color=ft.Colors.GREY_400,
+                            align=ft.Alignment.CENTER,
                         ),
-                        Text(
+                        ft.Text(
                             self.localization.empty_home_message,
                             size=18,
                             width=400,
-                            align=Alignment.CENTER,
+                            align=ft.Alignment.CENTER,
                         ),
                     ],
-                    align=Alignment.CENTER,
+                    align=ft.Alignment.CENTER,
                     spacing=5,
                 )
             )
 
-            content = Column(
+            content = ft.Column(
                 [
                     title,
                     message,
                 ],
-                alignment=Alignment.TOP_CENTER,
-                horizontal_alignment=Alignment.CENTER,
+                alignment=ft.Alignment.TOP_CENTER,
+                horizontal_alignment=ft.Alignment.CENTER,
                 spacing=20,
             )
 
-            return View(
+            return ft.View(
                 route="/",
                 navigation_bar=self._get_nav_bar(0),
                 controls=[
-                    Container(
+                    ft.Container(
                         content=content,
                         padding=20,
-                        bgcolor=Colors.WHITE,
+                        bgcolor=ft.Colors.WHITE,
                         width=self.page.width,
                         height=self.page.height - 80,
                     )
                 ],
             )
 
-        cars_column = Column(
-            alignment=Alignment.CENTER,
-            horizontal_alignment=Alignment.CENTER,
+        cars_column = ft.Column(
+            alignment=ft.Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
             spacing=20,
         )
 
@@ -74,32 +74,32 @@ class HomeBuilder(Builder):
                 card = self._create_car_card(car)
             cars_column.controls.append(card)
 
-        subtitle = Text(
+        subtitle = ft.Text(
             self.localization.last_added_cars,
             size=16,
             weight="w500",
-            color=Colors.GREY_800,
+            color=ft.Colors.GREY_800,
         )
 
-        content = Column(
+        content = ft.Column(
             [
                 title,
                 subtitle,
                 cars_column,
             ],
             alignment="start",
-            horizontal_alignment=Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
             spacing=15,
         )
 
-        return View(
+        return ft.View(
             route="/",
             navigation_bar=self._get_nav_bar(0),
             controls=[
-                Container(
+                ft.Container(
                     content=content,
                     padding=20,
-                    bgcolor=Colors.WHITE,
+                    bgcolor=ft.Colors.WHITE,
                     width=self.page.width,
                     height=self.page.height - 80,
                 )

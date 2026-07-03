@@ -1,10 +1,4 @@
-from flet import (
-    Page,
-    Theme,
-    PageTransitionsTheme,
-    PageTransitionTheme,
-    run,
-)
+import flet as ft
 import logging
 
 from app.database.models import init_db
@@ -12,15 +6,15 @@ from app.ui.router import UIRouter
 from app.services.logging import setup_logging
 
 
-def main(page: Page):
+def main(page: ft.Page):
     try:
         init_db()
 
         page.fonts = {"NotoSansSC": "assets/fonts/NotoSansSC-Regular.ttf"}
-        page.theme = Theme(
+        page.theme = ft.Theme(
             font_family="NotoSansSC",
-            page_transitions=PageTransitionsTheme(
-                android=PageTransitionTheme.NONE, linux=PageTransitionTheme.NONE
+            page_transitions=ft.PageTransitionsTheme(
+                android=ft.PageTransitionTheme.NONE, linux=ft.PageTransitionTheme.NONE
             ),
         )
         page.window.width = 360
@@ -35,4 +29,4 @@ def main(page: Page):
 if __name__ == "__main__":
     setup_logging()
     print("The app has been setup")
-    run(main=main)
+    ft.run(main=main)

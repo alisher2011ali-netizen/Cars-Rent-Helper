@@ -1,22 +1,10 @@
-from flet import (
-    View,
-    Column,
-    Row,
-    Text,
-    Dropdown,
-    DropdownOption,
-    Alignment,
-    Icon,
-    Icons,
-    Colors,
-    ElevatedButton,
-)
+import flet as ft
 
 from app.ui.builders.base import Builder
 
 
 class FirstLaunchBuilder(Builder):
-    def build_first_launch_view(self) -> View:
+    def build_first_launch_view(self) -> ft.View:
         def on_language_change(e):
             selected_language = e.control.value
             self.db_manager.set_setting("language", selected_language)
@@ -34,64 +22,66 @@ class FirstLaunchBuilder(Builder):
             self.db_manager.set_setting("is_first_launch", "false")
             self.page.go("/cars")
 
-        content = Column(
+        content = ft.Column(
             [
-                Row(
+                ft.Row(
                     [
-                        Icon(
-                            icon=Icons.CAR_RENTAL,
+                        ft.Icon(
+                            icon=ft.Icons.CAR_RENTAL,
                             size=100,
-                            color=Colors.PRIMARY,
-                            align=Alignment.CENTER,
+                            color=ft.Colors.PRIMARY,
+                            align=ft.Alignment.CENTER,
                         ),
-                        Text(
+                        ft.Text(
                             self.localization.app_name,
                             size=28,
                             weight="bold",
                         ),
                     ],
                 ),
-                Text(
+                ft.Text(
                     self.localization.hello_text,
                     size=24,
                     weight="bold",
                     text_align="center",
                 ),
-                Text(
+                ft.Text(
                     self.localization.choose_language,
                     size=20,
                     text_align="center",
                 ),
-                Dropdown(
+                ft.Dropdown(
                     options=[
-                        DropdownOption(key="ru", text="Русский"),
-                        DropdownOption(key="en", text="English"),
-                        DropdownOption(key="zh", text="中文"),
+                        ft.DropdownOption(key="ru", text="Русский"),
+                        ft.DropdownOption(key="en", text="English"),
+                        ft.DropdownOption(key="zh", text="中文"),
                     ],
                     value=self.db_manager.get_setting("language") or "en",
                     width=200,
                     on_select=on_language_change,
                 ),
-                Text(self.localization.choose_currency, size=20, text_align="center"),
-                Dropdown(
+                ft.Text(
+                    self.localization.choose_currency, size=20, text_align="center"
+                ),
+                ft.Dropdown(
                     options=[
-                        DropdownOption(key="RUB", text="RUB"),
-                        DropdownOption(key="USD", text="USD"),
-                        DropdownOption(key="KGS", text="KGS"),
-                        DropdownOption(key="CNY", text="CNY"),
+                        ft.DropdownOption(key="RUB", text="RUB"),
+                        ft.DropdownOption(key="USD", text="USD"),
+                        ft.DropdownOption(key="KGS", text="KGS"),
+                        ft.DropdownOption(key="CNY", text="CNY"),
                     ],
                     value=self.db_manager.get_setting("currency") or "RUB",
                     width=200,
                     on_select=on_currency_change,
                 ),
-                ElevatedButton(
+                ft.ElevatedButton(
                     self.localization.continue_button,
-                    icon=Icons.ARROW_FORWARD,
+                    icon=ft.Icons.ARROW_FORWARD,
                     on_click=on_continue,
                 ),
             ],
-            alignment=Alignment.CENTER,
-            horizontal_alignment=Alignment.CENTER,
+            alignment=ft.Alignment.CENTER,
+            horizontal_alignment=ft.Alignment.CENTER,
             spacing=20,
         )
-        return View(route="/first_launch", controls=[content])
+        return ft.View(route="/first_launch", controls=[content])
