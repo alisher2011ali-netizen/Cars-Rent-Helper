@@ -35,12 +35,16 @@ class DatabaseManager:
 
     def add_tenant(
         self,
-        fullname: str,
+        last_name: str,
+        first_name: str,
+        middle_name: str,
         phone_number: str,
         debt_sum: float = 0.0,
     ) -> Tenant:
         new_tenant = Tenant(
-            fullname=fullname,
+            last_name=last_name,
+            first_name=first_name,
+            middle_name=middle_name,
             phone_number=phone_number,
             debt_sum=debt_sum,
         )

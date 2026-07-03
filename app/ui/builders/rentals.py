@@ -78,7 +78,7 @@ class RentalBuilder(Builder):
                             size=14,
                         ),
                         ft.Text(
-                            f"{self.localization.tenant}: {rental.tenant.fullname} ({rental.tenant.phone_number})",
+                            f"{self.localization.tenant}: {rental.tenant.last_name} {rental.tenant.first_name} ({rental.tenant.phone_number})",
                             size=14,
                         ),
                         ft.Text(
@@ -134,7 +134,8 @@ class RentalBuilder(Builder):
 
         tenant_options = [
             ft.DropdownOption(
-                key=tenant.id, text=f"{tenant.fullname} ({tenant.phone_number})"
+                key=tenant.id,
+                text=f"{tenant.last_name} {tenant.first_name} ({tenant.phone_number})",
             )
             for tenant in tenants
         ]

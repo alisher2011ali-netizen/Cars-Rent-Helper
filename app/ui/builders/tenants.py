@@ -57,13 +57,18 @@ class TenantBuilder(Builder):
         for tenant in tenants_list:
             if not tenant.avatar:
                 avatar = ft.CircleAvatar(
-                    content=ft.Text(tenant.fullname[0].upper(), color=ft.Colors.WHITE),
+                    content=ft.Text(
+                        tenant.last_name[0].upper(), size=50, color=ft.Colors.WHITE
+                    ),
                     bgcolor=ft.Colors.BLUE_GREY_400,
-                    radius=30,
+                    radius=65,
+                    expand=False,
                 )
             else:
                 avatar = ft.CircleAvatar(
                     content=ft.Image(src=tenant.avatar.path, align=ft.Alignment.CENTER),
+                    radius=65,
+                    expand=False,
                 )
             tenant_card = ft.Container(
                 content=ft.Column(
@@ -74,36 +79,42 @@ class TenantBuilder(Builder):
                                     ft.Column(
                                         [
                                             ft.Text(
-                                                f"{tenant.fullname}",
+                                                f"{tenant.last_name} {tenant.first_name}",
                                                 size=20,
                                                 weight="bold",
-                                                width=280,
+                                                width=200,
                                             ),
                                             ft.Text(
-                                                f"{self.localization.phone}: {tenant.phone_number}",
-                                                size=16,
+                                                tenant.phone_number,
+                                                size=20,
                                                 on_tap=lambda e: on_phone_number_tap(
                                                     tenant.phone_number
                                                 ),
                                             ),
                                             ft.TextButton(
-                                                self.localization.details,
+                                                ft.Text(
+                                                    self.localization.details, size=16
+                                                ),
+                                                icon=ft.Icons.DETAILS,
                                                 on_click=lambda e, t_id: self.page.go(
                                                     f"/details_{t_id}"
                                                 ),
                                             ),
-                                        ]
+                                        ],
+                                        spacing=0,
                                     ),
+                                    expand=False,
                                 ),
                                 avatar,
-                            ]
+                            ],
+                            alignment=ft.MainAxisAlignment.START,
+                            spacing=0,
                         )
                     ],
                     spacing=5,
                 ),
-                padding=15,
+                padding=10,
                 alignment=ft.Alignment.CENTER_LEFT,
-                border_radius=10,
                 bgcolor=ft.Colors.GREY_100,
             )
             tenants_content.controls.append(tenant_card)
@@ -169,7 +180,9 @@ class TenantBuilder(Builder):
 
         async def save_tenant(e=None):
             tenant_id = self.db_manager.add_tenant(
-                fullname=fullname_input.value,
+                last_name=last_name_input.value.strip(),
+                first_name=first_name_input.value.strip(),
+                middle_name=middle_name_input.value.strip(),
                 phone_number=phone_input.value,
                 debt_sum=float(debt_sum_input.value) if debt_sum_input.value else 0.0,
             ).id
@@ -206,14 +219,19 @@ class TenantBuilder(Builder):
             self._build_complete_snack_bar()
             self.page.go("/tenants")
 
-        fullname_input = ft.TextField(label=self.localization.fullname, width=300)
+        last_name_input = ft.TextField(label=self.localization.last_name, width=300)
+        first_name_input = ft.TextField(label=self.localization.first_name, width=300)
+        middle_name_input = ft.TextField(label=self.localization.middle_name, width=300)
+
         phone_input = ft.TextField(label=self.localization.phone, width=300)
         debt_sum_input = ft.TextField(label=self.localization.debt_in_total, width=300)
         input = ft.Container(
             content=ft.Column(
                 [
                     ft.Text(self.localization.new_tenant, size=24, weight="bold"),
-                    fullname_input,
+                    last_name_input,
+                    first_name_input,
+                    middle_name_input,
                     phone_input,
                     debt_sum_input,
                     ft.TextButton(

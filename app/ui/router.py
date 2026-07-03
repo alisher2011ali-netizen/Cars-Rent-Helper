@@ -19,7 +19,7 @@ class UIRouter:
         self.page.on_route_change = self.route_change
         self.page.route = self._set_navigation_bar(0)
         try:
-            if self.builder.db_manager.get_setting("is_first_launch") == "true":
+            if self.builder.db_manager.get_setting("is_first_launch") != "false":
                 self.builder.db_manager.set_setting("is_first_launch", "true")
                 view = self.builder.build_first_launch_view()
                 self.page.views.clear()

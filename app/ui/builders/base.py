@@ -20,7 +20,7 @@ class Builder:
         self.connector = connector or Connector()
         self.current_image_indices = current_image_indices or {}
         self.localization = localization or Localization(
-            self.db_manager.get_setting("language")
+            self.db_manager.get_setting("language") or "ru"
         )
 
     def _get_nav_bar(self, current_index: int):
@@ -212,52 +212,52 @@ class Builder:
             self.localization,
         )
 
-    def build_first_launch_view(self) -> View:
+    def build_first_launch_view(self) -> ft.View:
         from app.ui.builders.first_launch import FirstLaunchBuilder
 
         return self._make(FirstLaunchBuilder).build_first_launch_view()
 
-    def build_home_view(self) -> View:
+    def build_home_view(self) -> ft.View:
         from app.ui.builders.home import HomeBuilder
 
         return self._make(HomeBuilder).build_home_view()
 
-    def build_cars_view(self) -> View:
+    def build_cars_view(self) -> ft.View:
         from app.ui.builders.cars import CarBuilder
 
         return self._make(CarBuilder).build_cars_view()
 
-    def build_tenants_view(self) -> View:
+    def build_tenants_view(self) -> ft.View:
         from app.ui.builders.tenants import TenantBuilder
 
         return self._make(TenantBuilder).build_tenants_view()
 
-    def build_rentals_view(self) -> View:
+    def build_rentals_view(self) -> ft.View:
         from app.ui.builders.rentals import RentalBuilder
 
         return self._make(RentalBuilder).build_rentals_view()
 
-    def build_finances_view(self) -> View:
+    def build_finances_view(self) -> ft.View:
         from app.ui.builders.finances import FinanceBuilder
 
         return self._make(FinanceBuilder).build_finances_view()
 
-    def build_add_car_view(self) -> View:
+    def build_add_car_view(self) -> ft.View:
         from app.ui.builders.cars import CarBuilder
 
         return self._make(CarBuilder).build_add_car_view()
 
-    def build_add_tenant_view(self) -> View:
+    def build_add_tenant_view(self) -> ft.View:
         from app.ui.builders.tenants import TenantBuilder
 
         return self._make(TenantBuilder).build_add_tenant_view()
 
-    def build_add_rental_view(self) -> View:
+    def build_add_rental_view(self) -> ft.View:
         from app.ui.builders.rentals import RentalBuilder
 
         return self._make(RentalBuilder).build_add_rental_view()
 
-    def build_add_payment_view(self) -> View:
+    def build_add_payment_view(self) -> ft.View:
         from app.ui.builders.finances import FinanceBuilder
 
         return self._make(FinanceBuilder).build_add_payment_view()

@@ -88,7 +88,10 @@ class Tenant(Base):
     __tablename__ = "tenants"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    fullname: Mapped[str] = mapped_column(String(150))
+    last_name: Mapped[str] = mapped_column(String(150))
+    first_name: Mapped[str] = mapped_column(String(150))
+    middle_name: Mapped[str] = mapped_column(String(150))
+
     phone_number: Mapped[str] = mapped_column(String(20))
     debt_sum: Mapped[float] = mapped_column(
         Float, default=0.0
