@@ -1,5 +1,5 @@
 import flet as ft
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.ui.builders.base import Builder
 
@@ -108,6 +108,12 @@ class RentalBuilder(Builder):
         )
 
     def build_add_rental_view(self) -> ft.View:
+        def on_car_select():
+            pass
+
+        def on_tenant_select():
+            pass
+
         cars = self.db_manager.get_all_cars()
         tenants = self.db_manager.get_all_tenants()
 
@@ -130,6 +136,7 @@ class RentalBuilder(Builder):
             options=car_options,
             value=car_options[0].key if car_options else None,
             width=300,
+            on_select=on_car_select,
         )
 
         tenant_options = [
@@ -141,7 +148,9 @@ class RentalBuilder(Builder):
         ]
         tenant_dropdown = ft.Dropdown(
             options=tenant_options,
+            value=tenant_options[0].key if tenant_options else None,
             width=300,
+            on_select=on_tenant_select,
         )
 
         selected_car = None
@@ -155,6 +164,21 @@ class RentalBuilder(Builder):
             color=ft.Colors.GREEN_700,
         )
 
+        period_field = ft.TextField(
+            label="Период платежа",
+            keyboard_type=ft.KeyboardType.NUMBER,
+            on_change=lambda e: recalculate_total(),
+        )
+
+        error_text = ft.Text(
+            value="Неправильный ввод! Только числа больше нуля",
+            color=ft.Colors.RED,
+            size=14,
+            visible=False,
+        )
+
+        period_column = ft.Column([period_field, error_text], spacing=5, visible=False)
+
         price_field = ft.TextField(
             label="Стоимость за неделю",
             value="0",
@@ -163,27 +187,29 @@ class RentalBuilder(Builder):
             on_change=lambda e: recalculate_total(),
         )
 
-        def handle_date_change(e):
-            recalculate_total()
-
-        start_picker = ft.DatePicker(on_change=handle_date_change)
-        end_picker = ft.DatePicker(on_change=handle_date_change)
+        tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+        start_picker = ft.DatePicker(
+            value=datetime.now(timezone.utc), on_change=lambda e: recalculate_total()
+        )
+        end_picker = ft.DatePicker(
+            value=tomorrow, on_change=lambda e: recalculate_total()
+        )
 
         manual_date_row = ft.Row(
             [
                 ft.ElevatedButton(
                     self.localization.start,
                     icon=ft.Icons.CALENDAR_MONTH,
-                    on_click=lambda e: start_picker.pick_date(),
+                    on_click=lambda e: self.page.show_dialog(start_picker),
                 ),
                 ft.ElevatedButton(
                     self.localization.end,
                     icon=ft.Icons.CALENDAR_MONTH,
-                    on_click=lambda e: end_picker.pick_date(),
+                    on_click=lambda e: self.page.show_dialog(end_picker),
                 ),
             ],
             alignment=ft.MainAxisAlignment.CENTER,
-            visible=False,
+            visible=True,
         )
 
         def recalculate_total():
@@ -193,49 +219,65 @@ class RentalBuilder(Builder):
             except ValueError:
                 entered_price = 0
 
+            total_amount = 0
+            error_text.visible = False
+
             if tariff == "weekly":
-                start_date = datetime.now()
-                end_date = start_date + timedelta(days=7)
-                days = 7
-                total_amount = entered_price
-                dates_info_text.value = f"Срок: {days} дней ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+                start_date = start_picker.value
+                difference = end_picker.value - start_date
+                days = difference.days // 7
+                end_date = start_date + timedelta(days=days * 7)
+                total_amount = entered_price * days
+                dates_info_text.value = f"Срок: {days} нед. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             elif tariff == "monthly":
-                start_date = datetime.now()
-                end_date = start_date + timedelta(days=30)
-                days = 30
-                total_amount = entered_price
-                dates_info_text.value = f"Срок: 30 дней ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+                start_date = start_picker.value
+                difference = end_picker.value - start_date
+                days = difference.days // 30
+                end_date = start_date + timedelta(days=days * 30)
+                total_amount = entered_price * days
+                dates_info_text.value = f"Срок: {days} мес. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             elif tariff == "custom":
-                manual_date_row.visible = True
-                if start_picker.value:
+                if not period_field.value:
+                    dates_info_text.value = "Введите период"
+                elif not period_field.value.isdigit() or int(period_field.value) <= 0:
+                    error_text.visible = True
+                    error_text.update()
+                    return
+                else:
                     start_date = start_picker.value
-                if end_picker.value:
-                    end_date = end_picker.value
+                    difference = end_picker.value - start_date
+                    period = int(period_field.value)
 
-                days = (end_date - start_date).days
-                total_amount = entered_price
-                dates_info_text.value = f"Срок: {days} дн. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+                    periods_count = difference.days // period
+                    end_date = start_date + timedelta(days=periods_count * period)
+                    total_amount = entered_price * periods_count
+
+                    dates_info_text.value = f"Срок: {periods_count} раз(а) по {period} дн. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             total_price_text.value = (
                 f"{self.localization.total_to_be_paid}: {total_amount:.2f} руб."
             )
 
+            error_text.update()
             dates_info_text.update()
             total_price_text.update()
-            manual_date_row.update()
 
         def on_tariff_change(e):
             tariff = e.control.value
             if tariff == "weekly":
                 price_field.label = "Стоимость за неделю"
+                period_column.visible = False
             elif tariff == "monthly":
                 price_field.label = "Стоимость за месяц"
+                period_column.visible = False
             elif tariff == "custom":
-                price_field.label = "Стоимость за выбранный период"
+                price_field.label = "Стоимость за период"
+                period_column.visible = True
 
             price_field.update()
+            period_column.update()
             recalculate_total()
 
         tariff_radio = ft.RadioGroup(
@@ -268,6 +310,7 @@ class RentalBuilder(Builder):
                 car_dropdown,
                 tenant_dropdown,
                 tariff_radio,
+                period_column,
                 price_field,
                 dates_info_text,
                 total_price_text,

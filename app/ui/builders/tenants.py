@@ -95,20 +95,16 @@ class TenantBuilder(Builder):
                                                 ft.Text(
                                                     self.localization.details, size=16
                                                 ),
-                                                icon=ft.Icons.DETAILS,
                                                 on_click=lambda e, t_id: self.page.go(
                                                     f"/details_{t_id}"
                                                 ),
                                             ),
                                         ],
-                                        spacing=0,
                                     ),
-                                    expand=False,
                                 ),
                                 avatar,
                             ],
                             alignment=ft.MainAxisAlignment.START,
-                            spacing=0,
                         )
                     ],
                     spacing=5,
