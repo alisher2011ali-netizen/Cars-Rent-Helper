@@ -109,12 +109,14 @@ class DatabaseManager:
     def add_payment(
         self,
         amount: float,
+        type: bool,
         comment: str | None = None,
         rental_id: int | None = None,
     ) -> Payment:
         new_payment = Payment(
             rental_id=rental_id,
             amount=amount,
+            type=type,
             comment=comment,
         )
         self.session.add(new_payment)
