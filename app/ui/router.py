@@ -2,7 +2,15 @@ import flet as ft
 import logging
 import time
 
-from app.ui.builders import Builder
+from app.ui.builders import (
+    Builder,
+    HomeBuilder,
+    CarBuilder,
+    TenantBuilder,
+    RentalBuilder,
+    FinanceBuilder,
+    FirstLaunchBuilder,
+)
 
 
 class UIRouter:
@@ -20,13 +28,15 @@ class UIRouter:
         self.page.route = self._set_navigation_bar(0)
         try:
             if self.builder.db_manager.get_setting("is_first_launch") != "false":
+                fisrt_launch_builder = FirstLaunchBuilder(self.page)
                 self.builder.db_manager.set_setting("is_first_launch", "true")
-                view = self.builder.build_first_launch_view()
+                view = fisrt_launch_builder.build_first_launch_view()
                 self.page.views.clear()
                 self.page.views.append(view)
                 self.page.update()
             else:
-                view = self.builder.build_home_view()
+                home_builder = HomeBuilder(self.page)
+                view = home_builder.build_home_view()
                 self.page.views.clear()
                 self.page.views.append(view)
                 self.page.update()
@@ -64,27 +74,38 @@ class UIRouter:
         try:
             match e.route:
                 case "/":
-                    view = self.builder.build_home_view()
+                    home_builder = HomeBuilder(self.page)
+                    view = home_builder.build_home_view()
                 case "/first_launch":
-                    view = self.builder.build_first_launch_view()
+                    first_launch_builder = FirstLaunchBuilder(self.page)
+                    view = first_launch_builder.build_first_launch_view()
                 case "/cars":
-                    view = self.builder.build_cars_view()
+                    car_builder = CarBuilder(self.page)
+                    view = car_builder.build_cars_view()
                 case "/tenants":
-                    view = self.builder.build_tenants_view()
+                    tenant_builder = TenantBuilder(self.page)
+                    view = tenant_builder.build_tenants_view()
                 case "/rentals":
-                    view = self.builder.build_rentals_view()
+                    rental_builder = RentalBuilder(self.page)
+                    view = rental_builder.build_rentals_view()
                 case "/finances":
-                    view = self.builder.build_finances_view()
+                    finance_builder = FinanceBuilder(self.page)
+                    view = finance_builder.build_finances_view()
                 case "/add_car":
-                    view = self.builder.build_add_car_view()
+                    car_builder = CarBuilder(self.page)
+                    view = car_builder.build_add_car_view()
                 case "/add_tenant":
-                    view = self.builder.build_add_tenant_view()
+                    tenant_builder = TenantBuilder(self.page)
+                    view = tenant_builder.build_add_tenant_view()
                 case "/add_rental":
-                    view = self.builder.build_add_rental_view()
+                    rental_builder = RentalBuilder(self.page)
+                    view = rental_builder.build_add_rental_view()
                 case "/add_payment":
-                    view = self.builder.build_add_payment_view()
+                    finance_builder = FinanceBuilder(self.page)
+                    view = finance_builder.build_add_payment_view()
                 case _:
-                    view = self.builder.build_home_view()
+                    home_builder = HomeBuilder(self.page)
+                    view = home_builder.build_home_view()
         except Exception as ex:
             logging.exception(f"An error occurred while changing route to {e.route}.")
             error_content = ft.Container(

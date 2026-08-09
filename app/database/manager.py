@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.database.models import (
     Setting,
     Car,
@@ -53,10 +55,10 @@ class DatabaseManager:
         return new_tenant
 
     def get_last_added_cars(self, limit: int = 5):
+        last_added_cars = self.session.scalars(
+            select(Car).order_by(Car.id.desc()).limit(limit)
+        ).all()
 
-        last_added_cars = (
-            self.session.query(Car).order_by(Car.id.desc()).limit(limit).all()
-        )
         images = {}
         for car in last_added_cars:
             if car.images:
@@ -66,16 +68,18 @@ class DatabaseManager:
         return last_added_cars
 
     def get_all_cars(self):
-        return self.session.query(Car).order_by(Car.updated_at.desc()).all()
+        return self.session.scalars(select(Car).order_by(Car.updated_at.desc())).all()
 
     def get_all_tenants(self):
-        return self.session.query(Tenant).order_by(Tenant.updated_at.desc()).all()
+        return self.session.scalars(
+            select(Tenant).order_by(Tenant.updated_at.desc())
+        ).all()
 
     def get_all_rentals(self):
-        return self.session.query(Rental).order_by(Rental.status.desc()).all()
+        return self.session.scalars(select(Rental).order_by(Rental.status.desc())).all()
 
     def get_all_payments(self):
-        return self.session.query(Payment).order_by(Payment.date.desc()).all()
+        return self.session.scalars(select(Payment).order_by(Payment.date.desc())).all()
 
     def save_image_path(
         self, object_type: str, object_id: int, category: ImageCategory, image_path: str
@@ -91,10 +95,10 @@ class DatabaseManager:
         return image_path
 
     def get_setting(self, key: str):
-        return self.session.query(Setting.value).where(Setting.key == key).scalar()
+        return self.session.scalar(select(Setting.value).where(Setting.key == key))
 
     def set_setting(self, key: str, value: str = None):
-        setting = self.session.query(Setting).where(Setting.key == key).first()
+        setting = self.session.scalar(select(Setting).where(Setting.key == key))
         if setting:
             setting.value = value
         else:

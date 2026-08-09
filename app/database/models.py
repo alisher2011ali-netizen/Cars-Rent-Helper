@@ -49,7 +49,7 @@ class ImageCategory(str, Enum):
 
 
 class Image(Base):
-    __tablename__ = "car_images"
+    __tablename__ = "images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     path: Mapped[str] = mapped_column(String(300))

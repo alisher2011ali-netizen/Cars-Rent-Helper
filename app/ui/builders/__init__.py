@@ -4,6 +4,7 @@ from .cars import CarBuilder
 from .tenants import TenantBuilder
 from .rentals import RentalBuilder
 from .finances import FinanceBuilder
+from .first_launch import FirstLaunchBuilder
 
 __all__ = [
     "Builder",
@@ -12,4 +13,5 @@ __all__ = [
     "TenantBuilder",
     "RentalBuilder",
     "FinanceBuilder",
+    "FirstLaunchBuilder",
 ]
