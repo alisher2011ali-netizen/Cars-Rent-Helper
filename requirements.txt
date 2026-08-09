@@ -1,0 +1,4 @@
+flet
+sqlalchemy
+pdfminer.six
+Unidecode

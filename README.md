@@ -26,7 +26,7 @@
 * **Язык:** Python 3.12
 * **UI Framework:** [Flet](https://flet.dev/) (построение кроссплатформенных интерфейсов)
 * **База данных:** SQLite
-* **ORM & Миграции:** SQLAlchemy 2.0
+* **ORM:** SQLAlchemy 2.0
 * **Парсинг:** pdfminer.six (извлечение текста из PDF)
 
 ---
@@ -37,7 +37,7 @@
 
 1. **Клонируйте репозиторий:**
    ```bash
-   git clone [https://github.com/alisher2011ali-netizen/Cars-Rental-App.git](https://github.com/alisher2011ali-netizen/Cars-Rental-App.git)
+   git clone https://github.com/alisher2011ali-netizen/Cars-Rental-App.git
    cd Сars-Rental-App
    ```
 
@@ -87,6 +87,6 @@ flet build apk app/main.py --include-packages app
 
 ## 🤝 Благодарности и Open Source
 
-Модуль парсинга банковских выписок (`app/parsing/`) основан на открытом проекте [Sberbank2Excel](https://github.com/Ev2geny/Sberbank2Excel) от Ev2geny.
+Модуль парсинга банковских выписок (`app/parsing/`) основан на открытом проекте [Sberbank2Excel](https://github.com/Ev2geny/Sberbank2Excel) от Ev2geny. Огромное спасибо разработчикам этого проекта!
 
 Оригинальный код был подвергнут глубокому реверс-инжинирингу: извлечено ядро бизнес-логики, полностью удалены элементы графического интерфейса и тяжеловесные зависимости (`pandas`, `XlsxWriter`). Написан фасад-адаптер для прямого преобразования данных из PDF в словари Python, что позволило оптимизировать производительность и адаптировать код для бесшовной сборки в мобильное приложение.
