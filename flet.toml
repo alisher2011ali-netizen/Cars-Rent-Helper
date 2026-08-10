@@ -1,0 +1,12 @@
+[app]
+name = "Cars Rental App"
+author = "Alisher Ergeshov"
+version = "0.1v Alfa"
+build_number = 1
+description = "Описание моего крутого приложения"
+
+[android]
+permissions = [
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.READ_MEDIA_IMAGES"
+]
