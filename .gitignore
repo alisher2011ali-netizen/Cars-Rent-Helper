@@ -1,5 +1,6 @@
 data/
 .db
+test_statement.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

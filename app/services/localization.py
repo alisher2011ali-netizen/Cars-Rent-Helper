@@ -11,7 +11,12 @@ class Localization:
 
     def load_lang(self, lang_code: str):
         """Load localization strings from a JSON file."""
-        file_path = os.path.join("assets", "locales", f"{lang_code}.json")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        file_path = os.path.join(
+            current_dir, "..", "assets", "locales", f"{lang_code}.json"
+        )
+
         if os.path.exists(file_path):
             with open(file_path, "r", encoding="utf-8") as f:
                 self.strings = json.load(f)

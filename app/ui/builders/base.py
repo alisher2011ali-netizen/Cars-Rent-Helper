@@ -1,7 +1,6 @@
 import flet as ft
 
-from app.database.manager import DatabaseManager
-from app.database.models import Car
+from app.core.models import session_factory, Car
 from app.services.connector import Connector
 from app.services.localization import Localization
 
@@ -10,17 +9,13 @@ class Builder:
     def __init__(
         self,
         page: ft.Page,
-        db_manager: DatabaseManager | None = None,
-        connector: Connector | None = None,
-        current_image_indices: dict | None = None,
-        localization: Localization | None = None,
     ):
         self.page = page
-        self.db_manager = db_manager or DatabaseManager()
-        self.connector = connector or Connector()
-        self.current_image_indices = current_image_indices or {}
-        self.localization = localization or Localization(
-            self.db_manager.get_setting("language") or "ru"
+        self.connector = Connector()
+        self.current_image_indices = {}
+        self.localization = Localization(
+            self.page.shared_preferences.get("language_code"),
+            self.page.shared_preferences.get("currency"),
         )
 
     def _get_nav_bar(self, current_index: int):

@@ -6,7 +6,7 @@ from sqlalchemy import (
     String,
     Integer,
     Boolean,
-    Float,
+    DECIMAL,
     DateTime,
     func,
 )
@@ -18,6 +18,7 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 from enum import Enum
+from decimal import Decimal
 
 data_path = Path("data/")
 if not data_path.exists():
@@ -93,8 +94,8 @@ class Tenant(Base):
     middle_name: Mapped[str] = mapped_column(String(150))
 
     phone_number: Mapped[str] = mapped_column(String(20))
-    debt_sum: Mapped[float] = mapped_column(
-        Float, default=0.0
+    debt_sum: Mapped[Decimal] = mapped_column(
+        DECIMAL, default=Decimal(0)
     )  # Total amount owed by tenant in rubles
     next_payment_due: Mapped[datetime | None] = mapped_column(
         DateTime, nullable=True
@@ -145,9 +146,9 @@ class Rental(Base):
 
     start_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     end_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    weekly_price: Mapped[float] = mapped_column(Float)
-    total_cost: Mapped[float] = mapped_column(
-        Float, default=0.0
+    weekly_price: Mapped[Decimal] = mapped_column(DECIMAL)
+    total_cost: Mapped[Decimal] = mapped_column(
+        DECIMAL, default=Decimal(0)
     )  # weekly_price * number_of_weeks
     status: Mapped[str] = mapped_column(
         String(20), default="active"
@@ -167,10 +168,25 @@ class Payment(Base):
         ForeignKey("rentals.id"), nullable=True
     )
 
-    amount: Mapped[float] = mapped_column(Float)
+    amount: Mapped[Decimal] = mapped_column(DECIMAL)
     type: Mapped[bool] = mapped_column(Boolean)  # True (income) / False (expense)
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
-    comment: Mapped[str | None] = mapped_column(String(200))
+    comment: Mapped[str | None] = mapped_column(String(200), nullable=True)
+
+    is_parsed: Mapped[bool] = mapped_column(Boolean, default=False)
+    operation_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    category: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    value_account_currency: Mapped[Decimal | None] = mapped_column(
+        DECIMAL, nullable=True
+    )
+    remainder_account_currency: Mapped[Decimal | None] = mapped_column(
+        DECIMAL, nullable=True
+    )
+    processing_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    authorisation_code: Mapped[int | None] = mapped_column(
+        Integer, unique=True, nullable=True
+    )
+    description: Mapped[str | None] = mapped_column(String(200), nullable=True)
 
     rental: Mapped["Rental"] = relationship(back_populates="payments")
 
