@@ -1,16 +1,28 @@
 import flet as ft
 import logging
+import os
 
+<<<<<<< HEAD
 from database.models import init_db
 from ui.router import UIRouter
 from services.logging import setup_logging
+=======
+from app.core.models import init_db
+from app.ui.router import UIRouter
+from app.services.logging import setup_logging
+>>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 def main(page: ft.Page):
     try:
         init_db()
 
-        page.fonts = {"NotoSansSC": "assets/fonts/NotoSansSC-Regular.ttf"}
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        font_path = os.path.join(
+            current_dir, "assets", "fonts", "NotoSansSC-Regular.ttf"
+        )
+
+        page.fonts = {"NotoSansSC": font_path}
         page.theme = ft.Theme(
             font_family="NotoSansSC",
             page_transitions=ft.PageTransitionsTheme(

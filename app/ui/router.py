@@ -27,9 +27,9 @@ class UIRouter:
         self.page.on_route_change = self.route_change
         self.page.route = self._set_navigation_bar(0)
         try:
-            if self.builder.db_manager.get_setting("is_first_launch") != "false":
+            if self.page.shared_preferences.get("is_first_launch") != False:
                 fisrt_launch_builder = FirstLaunchBuilder(self.page)
-                self.builder.db_manager.set_setting("is_first_launch", "true")
+                self.page.shared_preferences.set("is_first_launch", True)
                 view = fisrt_launch_builder.build_first_launch_view()
                 self.page.views.clear()
                 self.page.views.append(view)

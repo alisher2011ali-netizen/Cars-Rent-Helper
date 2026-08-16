@@ -52,8 +52,7 @@ class HomeBuilder(Builder):
                 controls=[
                     ft.Container(
                         content=content,
-                        padding=20,
-                        bgcolor=ft.Colors.WHITE,
+                        padding=5,
                         width=self.page.width,
                         height=self.page.height - 80,
                     )

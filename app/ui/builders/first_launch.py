@@ -7,7 +7,7 @@ class FirstLaunchBuilder(Builder):
     def build_first_launch_view(self) -> ft.View:
         def on_language_change(e):
             selected_language = e.control.value
-            self.db_manager.set_setting("language", selected_language)
+            self.page.shared_preferences.set("language_code", selected_language)
             self.localization.load_lang(selected_language)
 
             self.page.views.clear()
@@ -15,11 +15,11 @@ class FirstLaunchBuilder(Builder):
 
         def on_currency_change(e):
             selected_currency = e.control.value
-            self.db_manager.set_setting("currency", selected_currency)
+            self.page.shared_preferences.set("currency", selected_currency)
             self.localization.currency = selected_currency
 
         def on_continue(e):
-            self.db_manager.set_setting("is_first_launch", "false")
+            self.page.shared_preferences.set("is_first_launch", False)
             self.page.go("/cars")
 
         content = ft.Column(
@@ -58,7 +58,7 @@ class FirstLaunchBuilder(Builder):
                                 ft.DropdownOption(key="en", text="English"),
                                 ft.DropdownOption(key="zh", text="中文"),
                             ],
-                            value=self.db_manager.get_setting("language") or "ru",
+                            value="ru",
                             width=200,
                             on_select=on_language_change,
                         ),
@@ -79,7 +79,7 @@ class FirstLaunchBuilder(Builder):
                                 ft.DropdownOption(key="CNY", text="CNY  ¥"),
                                 ft.DropdownOption(key="KGS", text="KGS"),
                             ],
-                            value=self.db_manager.get_setting("currency") or "RUB",
+                            value="RUB",
                             width=200,
                             on_select=on_currency_change,
                         ),

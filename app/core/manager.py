@@ -13,9 +13,6 @@ from database.models import (
 
 
 class DatabaseManager:
-    def __init__(self):
-        self.session = session_factory()
-
     def add_car(
         self,
         brand: str,

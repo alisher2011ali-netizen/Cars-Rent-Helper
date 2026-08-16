@@ -1,11 +1,18 @@
 import flet as ft
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
+<<<<<<< HEAD
 from ui.builders.base import Builder
+=======
+from app.ui.builders.base import Builder
+from app.core.models import session_factory, Tenant
+>>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class TenantBuilder(Builder):
-    def build_tenants_view(self) -> ft.View:
-        tenants_list = self.db_manager.get_all_tenants()
+    def build_tenants_view(self, db: Session = session_factory()) -> ft.View:
+        tenants_list = db.scalars(select(Tenant)).all()
         fab = self._build_fab("/add_tenant", self.localization.add_tenant)
 
         if not tenants_list:
@@ -123,7 +130,7 @@ class TenantBuilder(Builder):
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
         )
 
-    def build_add_tenant_view(self) -> ft.View:
+    def build_add_tenant_view(self, db: Session = session_factory()) -> ft.View:
         avatar_path = None
         passport_path = None
         sub_passport_path = None
@@ -175,39 +182,41 @@ class TenantBuilder(Builder):
             )
 
         async def save_tenant(e=None):
-            tenant_id = self.db_manager.add_tenant(
+            new_tenant = Tenant(
                 last_name=last_name_input.value.strip(),
                 first_name=first_name_input.value.strip(),
                 middle_name=middle_name_input.value.strip(),
                 phone_number=phone_input.value,
                 debt_sum=float(debt_sum_input.value) if debt_sum_input.value else 0.0,
-            ).id
+            )
+            db.add(new_tenant)
+            db.commit()
 
             if avatar_path:
                 await self.connector.save_image(
                     image_path=avatar_path,
-                    object_id=tenant_id,
+                    object_id=new_tenant.id,
                     object_type="tenant",
                     category="avatar",
                 )
             if passport_path:
                 await self.connector.save_image(
                     image_path=passport_path,
-                    object_id=tenant_id,
+                    object_id=new_tenant.id,
                     object_type="tenant",
                     category="passport",
                 )
             if sub_passport_path:
                 await self.connector.save_image(
                     image_path=sub_passport_path,
-                    object_id=tenant_id,
+                    object_id=new_tenant.id,
                     object_type="tenant",
                     category="sub_passport",
                 )
             if drive_license_path:
                 await self.connector.save_image(
                     image_path=drive_license_path,
-                    object_id=tenant_id,
+                    object_id=new_tenant.id,
                     object_type="tenant",
                     category="drive_license",
                 )

@@ -1,11 +1,18 @@
 import flet as ft
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
+<<<<<<< HEAD
 from ui.builders.base import Builder
+=======
+from app.ui.builders.base import Builder
+from app.core.models import session_factory, Car
+>>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class CarBuilder(Builder):
-    def build_cars_view(self) -> ft.View:
-        cars_list = self.db_manager.get_all_cars()
+    def build_cars_view(self, db: Session = session_factory()) -> ft.View:
+        cars_list = db.scalars(select(Car)).all()
         fab = self._build_fab("/add_car", self.localization.add_car)
 
         if not cars_list:
@@ -97,16 +104,18 @@ class CarBuilder(Builder):
             )
 
         async def save_car(e=None):
-            car_id = self.db_manager.add_car(
+            new_car = Car(
                 brand=brand_input.value,
                 model=model_input.value,
                 year=year_input.value,
                 plate_number=plate_num_input.value,
-            ).id
+            )
+            self.db.add(new_car)
+            self.db.commit()
 
             for image_path in selected_images_paths:
                 await self.connector.save_image(
-                    image_path=image_path, object_id=car_id, object_type="car"
+                    image_path=image_path, object_id=new_car.id, object_type="car"
                 )
 
             self._build_complete_snack_bar()

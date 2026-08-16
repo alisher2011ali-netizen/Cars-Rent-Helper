@@ -1,18 +1,29 @@
 from typing import Tuple, List, Dict
 import base64, uuid, logging
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
+<<<<<<< HEAD
 from database.models import Car
 from database.manager import DatabaseManager
 from services.file_manager import FileManager
+=======
+from app.core.models import session_factory, Car, Payment, Image
+from app.services.file_manager import FileManager
+from app.parsing.parser import process_sber_pdf
+>>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class Connector:
     def __init__(self):
-        self.db_manager = DatabaseManager()
         self.file_manager = FileManager()
 
-    def get_last_added_cars(self) -> Tuple[List[Car], Dict[int, List[str]]]:
-        last_added_cars = self.db_manager.get_last_added_cars()
+    def get_last_added_cars(
+        self, limit: int = 5, db: Session = session_factory()
+    ) -> Tuple[List[Car], Dict[int, List[str]]]:
+        last_added_cars = db.scalars(
+            select(Car).order_by(Car.id.desc()).limit(limit)
+        ).all()
         if not last_added_cars:
             return [], {}
         try:
@@ -24,7 +35,7 @@ class Connector:
                     continue
 
                 for car_image in car.images:
-                    with open(car_image.image_path, "rb") as f:
+                    with open(car_image.path, "rb") as f:
                         image_bytes = f.read()
                         images[car.id].append(
                             base64.b64encode(image_bytes).decode("utf-8")
@@ -44,6 +55,7 @@ class Connector:
         object_id: int,
         object_type: str,
         category: str = "car_photo",
+        db: Session = session_factory(),
     ) -> str:
         try:
             unique_number = uuid.uuid4().hex[:8]
@@ -61,15 +73,35 @@ class Connector:
                         new_path = f"data/images/tenants/driver_licenses/{object_id}_{unique_number}.jpg"
 
             self.file_manager.copy_file(image_path, new_path)
-            self.db_manager.save_image_path(
+            new_image = Image(
                 object_type=object_type,
                 object_id=object_id,
                 category=category,
-                image_path=image_path,
+                path=new_path,
             )
-            return image_path
+            db.add(new_image)
+            db.commit()
+            return new_path
         except Exception as ex:
             logging.exception(
                 f"An error occurred while saving the image for {object_type} {object_id}."
             )
             return ""
+
+    def save_statement(self, file_path: str, db: Session = session_factory()) -> bool:
+        try:
+            data = process_sber_pdf(file_path)
+            for payment in data:
+                payment["type"] = payment["value_account_currency"] >= 0
+                payment["amount"] = payment["value_account_currency"]
+
+                new_payment = Payment(is_parsed=True, **payment)
+                db.add(new_payment)
+            db.commit()
+            return True
+
+        except Exception as e:
+            logging.exception(
+                f"An error when trying to parse statement. File: {file_path}"
+            )
+            return False

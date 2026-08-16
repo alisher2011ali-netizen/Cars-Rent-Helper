@@ -1,12 +1,19 @@
 import flet as ft
 from datetime import datetime, timedelta, timezone
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 
+<<<<<<< HEAD
 from ui.builders.base import Builder
+=======
+from app.ui.builders.base import Builder
+from app.core.models import session_factory, Car, Rental, Tenant
+>>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class RentalBuilder(Builder):
-    def build_rentals_view(self) -> ft.View:
-        rentals_list = self.db_manager.get_all_rentals()
+    def build_rentals_view(self, db: Session = session_factory()) -> ft.View:
+        rentals_list = db.scalars(select(Rental)).all()
         fab = self._build_fab("/add_rental", "Добавить аренду")
 
         if not rentals_list:
@@ -107,15 +114,15 @@ class RentalBuilder(Builder):
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
         )
 
-    def build_add_rental_view(self) -> ft.View:
+    def build_add_rental_view(self, db: Session = session_factory()) -> ft.View:
         def on_car_select():
             pass
 
         def on_tenant_select():
             pass
 
-        cars = self.db_manager.get_all_cars()
-        tenants = self.db_manager.get_all_tenants()
+        cars = db.scalars(select(Car)).all()
+        tenants = db.scalars(select(Tenant)).all()
 
         if not cars or not tenants:
             snack = ft.SnackBar(
@@ -225,18 +232,18 @@ class RentalBuilder(Builder):
             if tariff == "weekly":
                 start_date = start_picker.value
                 difference = end_picker.value - start_date
-                days = difference.days // 7
-                end_date = start_date + timedelta(days=days * 7)
-                total_amount = entered_price * days
-                dates_info_text.value = f"Срок: {days} нед. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+                weeks = difference.days // 7
+                end_date = start_date + timedelta(weeks=weeks)
+                total_amount = entered_price * weeks
+                dates_info_text.value = f"Срок: {weeks} нед. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             elif tariff == "monthly":
                 start_date = start_picker.value
                 difference = end_picker.value - start_date
-                days = difference.days // 30
-                end_date = start_date + timedelta(days=days * 30)
-                total_amount = entered_price * days
-                dates_info_text.value = f"Срок: {days} мес. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
+                months = difference.days // 30
+                end_date = start_date + timedelta(days=months * 30)
+                total_amount = entered_price * months
+                dates_info_text.value = f"Срок: {months} мес. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             elif tariff == "custom":
                 if not period_field.value:
