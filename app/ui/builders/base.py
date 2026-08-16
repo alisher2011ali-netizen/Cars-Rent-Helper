@@ -1,15 +1,8 @@
 import flet as ft
 
-<<<<<<< HEAD
-from database.manager import DatabaseManager
-from database.models import Car
+from core.models import Car
 from services.connector import Connector
 from services.localization import Localization
-=======
-from app.core.models import session_factory, Car
-from app.services.connector import Connector
-from app.services.localization import Localization
->>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class Builder:

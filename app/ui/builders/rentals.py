@@ -3,12 +3,8 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-<<<<<<< HEAD
 from ui.builders.base import Builder
-=======
-from app.ui.builders.base import Builder
-from app.core.models import session_factory, Car, Rental, Tenant
->>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
+from core.models import session_factory, Car, Rental, Tenant
 
 
 class RentalBuilder(Builder):

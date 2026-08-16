@@ -2,12 +2,8 @@ import flet as ft
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-<<<<<<< HEAD
+from core.models import session_factory, Car
 from ui.builders.base import Builder
-=======
-from app.ui.builders.base import Builder
-from app.core.models import session_factory, Car
->>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
 
 
 class CarBuilder(Builder):

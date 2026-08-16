@@ -3,15 +3,9 @@ import base64, uuid, logging
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-<<<<<<< HEAD
-from database.models import Car
-from database.manager import DatabaseManager
+from core.models import session_factory, Car, Image, Payment
 from services.file_manager import FileManager
-=======
-from app.core.models import session_factory, Car, Payment, Image
-from app.services.file_manager import FileManager
-from app.parsing.parser import process_sber_pdf
->>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
+from parsing.parser import process_sber_pdf
 
 
 class Connector:

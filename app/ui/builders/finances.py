@@ -1,16 +1,15 @@
 import flet as ft
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-<<<<<<< HEAD
 from ui.builders.base import Builder
-=======
-from app.ui.builders.base import Builder
-from app.parsing.parser import process_sber_pdf
->>>>>>> 80665e14ce6c918b41c8631759381e6be75700dc
+from core.models import session_factory, Payment
+from parsing.parser import process_sber_pdf
 
 
 class FinanceBuilder(Builder):
-    def build_finances_view(self) -> ft.View:
-        payments_list = self.db_manager.get_all_payments()
+    def build_finances_view(self, db: Session = session_factory()) -> ft.View:
+        payments_list = db.scalars(select(Payment)).all()
         title = ft.Text(
             f"💰 {self.localization.finances}",
             size=24,
@@ -144,7 +143,7 @@ class FinanceBuilder(Builder):
                                     ft.Row(
                                         [
                                             ft.Icon(
-                                                ft.icons.ACCOUNT_BALANCE,
+                                                ft.Icons.ACCOUNT_BALANCE,
                                                 size=14,
                                                 color=ft.Colors.BLUE_GREY_400,
                                             ),
@@ -199,16 +198,18 @@ class FinanceBuilder(Builder):
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
         )
 
-    def build_add_payment_view(self) -> ft.View:
+    def build_add_payment_view(self, db: Session = session_factory()) -> ft.View:
         def save_payment(e):
             payment_type = (
                 True if type_dropdown.value == self.localization.income else False
             )
-            self.db_manager.add_payment(
+            new_payment = Payment(
                 amount=amount_input.value,
                 comment=comment_input.value,
                 type=payment_type,
             )
+            db.add(new_payment)
+            db.commit()
 
             self._build_complete_snack_bar()
             self.page.go("/finances")
