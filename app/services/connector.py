@@ -1,9 +1,9 @@
 from typing import Tuple, List, Dict
 import base64, uuid, logging
 
-from app.database.models import Car
-from app.database.manager import DatabaseManager
-from app.services.file_manager import FileManager
+from database.models import Car
+from database.manager import DatabaseManager
+from services.file_manager import FileManager
 
 
 class Connector:

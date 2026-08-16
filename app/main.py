@@ -1,9 +1,9 @@
 import flet as ft
 import logging
 
-from app.database.models import init_db
-from app.ui.router import UIRouter
-from app.services.logging import setup_logging
+from database.models import init_db
+from ui.router import UIRouter
+from services.logging import setup_logging
 
 
 def main(page: ft.Page):

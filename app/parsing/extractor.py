@@ -6,7 +6,7 @@ All real extractors need to inherit from it and overwrite  all @abstractmethod
 from abc import ABC, abstractmethod
 from decimal import Decimal
 
-from app.parsing import exceptions
+from parsing import exceptions
 
 
 class Extractor(ABC):

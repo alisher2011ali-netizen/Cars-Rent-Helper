@@ -2,6 +2,7 @@
 """
 Разные отдельностоящие функции, которые используются в других модулях
 """
+
 from decimal import Decimal
 
 from typing import TypeVar
@@ -10,7 +11,7 @@ import unidecode
 import re
 from typing import *
 
-from app.parsing import exceptions
+from parsing import exceptions
 
 
 def get_decimal_from_money(
@@ -25,9 +26,7 @@ def get_decimal_from_money(
     """
 
     money_str = unidecode.unidecode(money_str)
-    # избавляемся от пробелов
     money_str = money_str.replace(" ", "")
-    # заменяем запятую на точку
     money_str = money_str.replace(",", ".")
 
     leading_plus = False

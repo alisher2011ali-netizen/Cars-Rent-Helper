@@ -1,7 +1,7 @@
 import os
 
-from app.parsing.pdf2txtev import pdf_2_txt_file
-from app.parsing.sber_parser import parse_sber_text_to_dict
+from parsing.pdf2txtev import pdf_2_txt_file
+from parsing.sber_parser import parse_sber_text_to_dict
 
 
 def process_sber_pdf(input_pdf_path: str) -> list[dict]:

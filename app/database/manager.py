@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.database.models import (
+from database.models import (
     Setting,
     Car,
     Image,

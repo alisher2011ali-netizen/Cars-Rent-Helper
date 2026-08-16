@@ -6,9 +6,9 @@ import logging
 from decimal import Decimal
 from pprint import pprint
 
-from app.parsing.extractors import extractors_list
-from app.parsing import exceptions
-from app.parsing.extractor import Extractor
+from parsing.extractors import extractors_list
+from parsing import exceptions
+from parsing.extractor import Extractor
 
 
 def determine_extractor_auto(pdf_text: str) -> type:
@@ -209,11 +209,9 @@ Some wrong text, which cannot be correct
     print(f"{undefined_fiels_set=}")
 
     if len(undefined_fiels_set) > 0:
-        raise ValueError(
-            f"""
+        raise ValueError(f"""
 Some of the fields, returned by the function 'get_entries()' are not retured by the function 'get_columns_info()'
-Specifically the following fields are missing {undefined_fiels_set}"""
-        )
+Specifically the following fields are missing {undefined_fiels_set}""")
 
     print(
         "------------------------------------------------------------------------------------------"
@@ -227,13 +225,11 @@ Specifically the following fields are missing {undefined_fiels_set}"""
     )
 
     if not column_name_for_balance_calculation in all_actually_returned_fields_set:
-        raise exceptions.TestingError(
-            f"""
+        raise exceptions.TestingError(f"""
 Function 'get_column_name_for_balance_calculation()' returns value '{column_name_for_balance_calculation}' which is not one of the actually
 returned fiels
 {all_actually_returned_fields_set}
-"""
-        )
+""")
 
     print("\n" * 2)
     print(bcolors.WARNING + "#" * 10 + " Warnings! " + "#" * 10 + bcolors.ENDC)

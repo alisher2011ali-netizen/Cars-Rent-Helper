@@ -1,7 +1,7 @@
 import flet as ft
 from datetime import datetime, timedelta, timezone
 
-from app.ui.builders.base import Builder
+from ui.builders.base import Builder
 
 
 class RentalBuilder(Builder):

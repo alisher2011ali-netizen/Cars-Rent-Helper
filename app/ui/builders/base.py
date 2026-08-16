@@ -1,9 +1,9 @@
 import flet as ft
 
-from app.database.manager import DatabaseManager
-from app.database.models import Car
-from app.services.connector import Connector
-from app.services.localization import Localization
+from database.manager import DatabaseManager
+from database.models import Car
+from services.connector import Connector
+from services.localization import Localization
 
 
 class Builder:

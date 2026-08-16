@@ -1,8 +1,8 @@
 import os
-from app.parsing.extractor import Extractor
-from app.parsing import extractors
-from app.parsing import exceptions
-from app.parsing.extractors_generic import determine_extractor_auto
+from parsing.extractor import Extractor
+from parsing import extractors
+from parsing import exceptions
+from parsing.extractors_generic import determine_extractor_auto
 
 
 def parse_sber_text_to_dict(input_txt_file_name: str, format="auto") -> list[dict]:
