@@ -13,10 +13,16 @@ class Builder:
         self.page = page
         self.connector = Connector()
         self.current_image_indices = {}
-        self.localization = Localization(
-            self.page.shared_preferences.get("language_code"),
-            self.page.shared_preferences.get("currency"),
-        )
+        self.localization = None
+
+    async def set_localization(self) -> None:
+        if not self.localization:
+            self.localization = Localization(
+                await self.page.shared_preferences.get("language_code"),
+                await self.page.shared_preferences.get("currency"),
+            )
+        else:
+            return
 
     def _get_nav_bar(self, current_index: int):
         return ft.NavigationBar(

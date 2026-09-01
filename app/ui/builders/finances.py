@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ui.builders.base import Builder
-from core.models import session_factory, Payment
+from core.models import session_factory, Payment, PaymentType
 from parsing.parser import process_sber_pdf
 
 
@@ -83,7 +83,7 @@ class FinanceBuilder(Builder):
         )
 
         for payment in payments_list:
-            payment_type = "+" if payment.type else "-"
+            payment_type = "+" if payment.type == PaymentType.income else "-"
             text_color = ft.Colors.GREEN_500 if payment.type else ft.Colors.RED_500
             if not payment.is_parsed:
                 payment_card = ft.Container(
@@ -201,7 +201,9 @@ class FinanceBuilder(Builder):
     def build_add_payment_view(self, db: Session = session_factory()) -> ft.View:
         def save_payment(e):
             payment_type = (
-                True if type_dropdown.value == self.localization.income else False
+                PaymentType.income
+                if type_dropdown.value == "income"
+                else PaymentType.expense
             )
             new_payment = Payment(
                 amount=amount_input.value,

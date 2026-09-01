@@ -1,6 +1,5 @@
 import flet as ft
 import logging
-import time
 
 from ui.builders import (
     Builder,
@@ -22,49 +21,28 @@ class UIRouter:
         self.page.navigation_bar = self.builder._get_nav_bar(route_index)
         self.page.update()
 
-    def build(self):
+    async def build(self):
         self.page.title = "Cars Rental App"
         self.page.on_route_change = self.route_change
-        self.page.route = self._set_navigation_bar(0)
+        self._set_navigation_bar(0)
+        await self.builder.set_localization()
         try:
-            if self.page.shared_preferences.get("is_first_launch") != False:
+            if await self.page.shared_preferences.get("is_first_launch") != False:
                 fisrt_launch_builder = FirstLaunchBuilder(self.page)
-                self.page.shared_preferences.set("is_first_launch", True)
+                await self.page.shared_preferences.set("is_first_launch", True)
                 view = fisrt_launch_builder.build_first_launch_view()
-                self.page.views.clear()
-                self.page.views.append(view)
-                self.page.update()
+
             else:
                 home_builder = HomeBuilder(self.page)
                 view = home_builder.build_home_view()
-                self.page.views.clear()
-                self.page.views.append(view)
-                self.page.update()
+
         except Exception as ex:
             logging.exception("An error occurred while initializing.")
-            error_content = ft.Container(
-                content=ft.Column(
-                    [
-                        ft.Text(
-                            self.builder.localization.error_initializing,
-                            size=20,
-                            weight="bold",
-                            color=ft.Colors.RED,
-                        ),
-                        ft.Text(str(ex), size=14, color=ft.Colors.RED_800),
-                    ],
-                    alignment="center",
-                    horizontal_alignment="center",
-                    spacing=20,
-                ),
-                padding=40,
-                bgcolor=ft.Colors.WHITE,
-                expand=True,
-            )
-            error_view = ft.View(route="/", controls=[error_content])
-            self.page.views.clear()
-            self.page.views.append(error_view)
-            self.page.update()
+
+            view = self._build_error_view(str(ex), "/")
+        self.page.views.clear()
+        self.page.views.append(view)
+        self.page.update()
 
     def route_change(self, e):
         """Handler for route change events. Updates the page view based on the new route.
@@ -108,44 +86,46 @@ class UIRouter:
                     view = home_builder.build_home_view()
         except Exception as ex:
             logging.exception(f"An error occurred while changing route to {e.route}.")
-            error_content = ft.Container(
-                content=ft.Column(
-                    [
-                        ft.Text(
-                            self.builder.localization.error_loading,
-                            size=20,
-                            weight="bold",
-                            color=ft.Colors.RED,
-                        ),
-                        ft.Text(
-                            f"{self.builder.localization.route}: {e.route}",
-                            size=12,
-                            color=ft.Colors.BLACK_87,
-                        ),
-                        ft.Text(
-                            f"{self.builder.localization.error}: {str(ex)}",
-                            size=12,
-                            color=ft.Colors.RED_800,
-                        ),
-                    ],
-                    alignment="center",
-                    horizontal_alignment="center",
-                    spacing=15,
-                ),
-                padding=40,
-                bgcolor=ft.Colors.WHITE,
-                expand=True,
-            )
-            view = ft.View(
-                route="/error",
-                controls=[error_content],
-            )
+            view = self._build_error_view(str(ex), e.route)
 
         # Only after we have the view, we try to update the page. This way we avoid clearing the page if view creation fails.
         try:
             self.page.views.clear()
-            time.sleep(0.1)
             self.page.views.append(view)
             self.page.update()
         except Exception as ex:
             logging.exception(f"An error occurred while updating the page: {ex}")
+
+    def _build_error_view(self, ex_str: str, route: str) -> ft.View:
+        error_content = ft.Container(
+            content=ft.Column(
+                [
+                    ft.Text(
+                        self.builder.localization.error_loading,
+                        size=20,
+                        weight="bold",
+                        color=ft.Colors.RED,
+                    ),
+                    ft.Text(
+                        f"{self.builder.localization.route}: {route}",
+                        size=12,
+                        color=ft.Colors.BLACK_87,
+                    ),
+                    ft.Text(
+                        f"{self.builder.localization.error}: {ex_str}",
+                        size=12,
+                        color=ft.Colors.RED_800,
+                    ),
+                ],
+                alignment="center",
+                horizontal_alignment="center",
+                spacing=15,
+            ),
+            padding=40,
+            bgcolor=ft.Colors.WHITE,
+            expand=True,
+        )
+        return ft.View(
+            route="/error",
+            controls=[error_content],
+        )

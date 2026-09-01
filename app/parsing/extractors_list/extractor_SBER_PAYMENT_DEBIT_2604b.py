@@ -23,10 +23,10 @@ from decimal import Decimal
 
 from typing import Any
 
-from app.parsing import exceptions
-from app.parsing.utils import get_decimal_from_money, split_Sberbank_line
-from app.parsing.extractor import Extractor
-from app.parsing import extractors_generic
+from parsing import exceptions
+from parsing.utils import get_decimal_from_money, split_Sberbank_line
+from parsing.extractor import Extractor
+from parsing import extractors_generic
 
 class SBER_PAYMENT_DEBIT_2604b(Extractor):
 

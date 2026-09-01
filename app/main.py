@@ -1,6 +1,7 @@
 import flet as ft
 import logging
 import os
+import asyncio
 
 from core.models import init_db
 from ui.router import UIRouter
@@ -26,7 +27,7 @@ def main(page: ft.Page):
         page.window.width = 360
         page.window.height = 780
         ui = UIRouter(page)
-        ui.build()
+        asyncio.create_task(ui.build())
 
     except Exception as ex:
         logging.exception("An unexpected error occurred while running the app.")

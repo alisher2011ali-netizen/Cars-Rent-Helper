@@ -3,7 +3,7 @@ import base64, uuid, logging
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from core.models import session_factory, Car, Image, Payment
+from core.models import session_factory, Car, Image, Payment, PaymentType
 from services.file_manager import FileManager
 from parsing.parser import process_sber_pdf
 
@@ -86,7 +86,11 @@ class Connector:
         try:
             data = process_sber_pdf(file_path)
             for payment in data:
-                payment["type"] = payment["value_account_currency"] >= 0
+                payment["type"] = (
+                    PaymentType.income
+                    if payment["value_account_currency"] >= 0
+                    else PaymentType.expense
+                )
                 payment["amount"] = payment["value_account_currency"]
 
                 new_payment = Payment(is_parsed=True, **payment)
