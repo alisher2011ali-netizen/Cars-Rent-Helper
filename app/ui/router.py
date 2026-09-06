@@ -10,6 +10,7 @@ from ui.builders import (
     FinanceBuilder,
     FirstLaunchBuilder,
 )
+from services.localization import localization
 
 
 class UIRouter:
@@ -17,15 +18,10 @@ class UIRouter:
         self.page = page
         self.builder = Builder(self.page)
 
-    def _set_navigation_bar(self, route_index: int):
-        self.page.navigation_bar = self.builder._get_nav_bar(route_index)
-        self.page.update()
-
     async def build(self):
         self.page.title = "Cars Rental App"
         self.page.on_route_change = self.route_change
-        self._set_navigation_bar(0)
-        await self.builder.set_localization()
+        self.page.navigation_bar = self.builder._get_nav_bar(0)
         try:
             if await self.page.shared_preferences.get("is_first_launch") != False:
                 fisrt_launch_builder = FirstLaunchBuilder(self.page)
@@ -101,18 +97,18 @@ class UIRouter:
             content=ft.Column(
                 [
                     ft.Text(
-                        self.builder.localization.error_loading,
+                        localization.error_loading,
                         size=20,
                         weight="bold",
                         color=ft.Colors.RED,
                     ),
                     ft.Text(
-                        f"{self.builder.localization.route}: {route}",
+                        f"{localization.route}: {route}",
                         size=12,
                         color=ft.Colors.BLACK_87,
                     ),
                     ft.Text(
-                        f"{self.builder.localization.error}: {ex_str}",
+                        f"{localization.error}: {ex_str}",
                         size=12,
                         color=ft.Colors.RED_800,
                     ),

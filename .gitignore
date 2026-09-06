@@ -1,6 +1,7 @@
-data/
-.db
+main.db
+logs/
 test_statement.pdf
+changes.diff
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

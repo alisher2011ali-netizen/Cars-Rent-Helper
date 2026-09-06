@@ -1,5 +1,6 @@
 import flet as ft
 
+from services.localization import localization
 from ui.builders.base import Builder
 
 
@@ -8,7 +9,7 @@ class HomeBuilder(Builder):
         last_added_cars, images_dict = self.connector.get_last_added_cars()
 
         title = ft.Text(
-            f"🚗 {self.localization.app_name}",
+            f"🚗 {localization.app_name}",
             size=28,
             weight="bold",
             color=ft.Colors.BLUE_700,
@@ -25,7 +26,7 @@ class HomeBuilder(Builder):
                             align=ft.Alignment.CENTER,
                         ),
                         ft.Text(
-                            self.localization.empty_home_message,
+                            localization.empty_home_message,
                             size=18,
                             width=400,
                             align=ft.Alignment.CENTER,
@@ -74,7 +75,7 @@ class HomeBuilder(Builder):
             cars_column.controls.append(card)
 
         subtitle = ft.Text(
-            self.localization.last_added_cars,
+            localization.last_added_cars,
             size=16,
             weight="w500",
             color=ft.Colors.GREY_800,

@@ -20,11 +20,12 @@ from sqlalchemy.orm import (
 )
 import enum
 from decimal import Decimal
+import os
 
-data_path = Path("data/")
-if not data_path.exists():
-    data_path.mkdir()
-db_path = data_path / "main.db"
+data_path = os.getenv("FLET_APP_STORAGE_DATA")
+if not data_path:
+    data_path = os.getcwd()
+db_path = os.path.join(data_path, "main.db")
 
 engine = create_engine(f"sqlite:///{db_path}", echo=False)
 session_factory = sessionmaker(bind=engine)

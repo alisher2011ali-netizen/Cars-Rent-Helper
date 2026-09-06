@@ -2,14 +2,15 @@ import flet as ft
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from ui.builders.base import Builder
 from core.models import session_factory, Tenant
+from services.localization import localization
+from ui.builders.base import Builder
 
 
 class TenantBuilder(Builder):
     def build_tenants_view(self, db: Session = session_factory()) -> ft.View:
         tenants_list = db.scalars(select(Tenant)).all()
-        fab = self._build_fab("/add_tenant", self.localization.add_tenant)
+        fab = self._build_fab("/add_tenant", localization.add_tenant)
 
         if not tenants_list:
             empty_message = self._build_not_data_container(
@@ -19,8 +20,8 @@ class TenantBuilder(Builder):
                     color=ft.Colors.GREY_400,
                     align=ft.Alignment.CENTER,
                 ),
-                self.localization.no_added_tenants,
-                self.localization.add_tenant,
+                localization.no_added_tenants,
+                localization.add_tenant,
                 "/add_tenant",
             )
             return ft.View(
@@ -32,7 +33,7 @@ class TenantBuilder(Builder):
                             [
                                 ft.AppBar(
                                     title=ft.Text(
-                                        f"👤 {self.localization.tenants}",
+                                        f"👤 {localization.tenants}",
                                         size=24,
                                         weight="bold",
                                     )
@@ -49,7 +50,7 @@ class TenantBuilder(Builder):
 
         def on_phone_number_tap(tenant_phone: str):
             self.page.clipboard.set(tenant_phone)
-            snack = ft.SnackBar(self.localization.copied, open=True)
+            snack = ft.SnackBar(localization.copied, open=True)
             self.page.overlay.append(snack)
 
         tenants_content = ft.Column(
@@ -95,9 +96,7 @@ class TenantBuilder(Builder):
                                                 ),
                                             ),
                                             ft.TextButton(
-                                                ft.Text(
-                                                    self.localization.details, size=16
-                                                ),
+                                                ft.Text(localization.details, size=16),
                                                 on_click=lambda e, t_id: self.page.go(
                                                     f"/details_{t_id}"
                                                 ),
@@ -220,48 +219,48 @@ class TenantBuilder(Builder):
             self._build_complete_snack_bar()
             self.page.go("/tenants")
 
-        last_name_input = ft.TextField(label=self.localization.last_name, width=300)
-        first_name_input = ft.TextField(label=self.localization.first_name, width=300)
-        middle_name_input = ft.TextField(label=self.localization.middle_name, width=300)
+        last_name_input = ft.TextField(label=localization.last_name, width=300)
+        first_name_input = ft.TextField(label=localization.first_name, width=300)
+        middle_name_input = ft.TextField(label=localization.middle_name, width=300)
 
-        phone_input = ft.TextField(label=self.localization.phone, width=300)
-        debt_sum_input = ft.TextField(label=self.localization.debt_in_total, width=300)
+        phone_input = ft.TextField(label=localization.phone, width=300)
+        debt_sum_input = ft.TextField(label=localization.debt_in_total, width=300)
         input = ft.Container(
             content=ft.Column(
                 [
-                    ft.Text(self.localization.new_tenant, size=24, weight="bold"),
+                    ft.Text(localization.new_tenant, size=24, weight="bold"),
                     last_name_input,
                     first_name_input,
                     middle_name_input,
                     phone_input,
                     debt_sum_input,
                     ft.TextButton(
-                        self.localization.upload_avatar,
+                        localization.upload_avatar,
                         icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_avatar_click,
                     ),
                     ft.TextButton(
-                        self.localization.upload_passport,
+                        localization.upload_passport,
                         icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_passport_click,
                     ),
                     ft.TextButton(
-                        self.localization.upload_subpassport,
+                        localization.upload_subpassport,
                         icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_sub_passport_click,
                     ),
                     ft.TextButton(
-                        self.localization.upload_driver_license,
+                        localization.upload_driver_license,
                         icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_drive_license_click,
                     ),
                     ft.ElevatedButton(
-                        self.localization.save,
+                        localization.save,
                         icon=ft.Icons.SAVE,
                         on_click=save_tenant,
                     ),
                     ft.ElevatedButton(
-                        self.localization.back,
+                        localization.back,
                         icon=ft.Icons.ARROW_BACK,
                         on_click=lambda e: self.page.go("/tenants"),
                     ),

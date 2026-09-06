@@ -3,8 +3,9 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from ui.builders.base import Builder
 from core.models import session_factory, Car, Rental, Tenant
+from services.localization import localization
+from ui.builders.base import Builder
 
 
 class RentalBuilder(Builder):
@@ -20,8 +21,8 @@ class RentalBuilder(Builder):
                     color=ft.Colors.GREY_400,
                     align=ft.Alignment.CENTER,
                 ),
-                self.localization.no_rentals_history,
-                self.localization.add_rental,
+                localization.no_rentals_history,
+                localization.add_rental,
                 "/add_rental",
             )
             return ft.View(
@@ -33,7 +34,7 @@ class RentalBuilder(Builder):
                             [
                                 ft.AppBar(
                                     title=ft.Text(
-                                        f"📋 {self.localization.rentals}",
+                                        f"📋 {localization.rentals}",
                                         size=24,
                                         weight="bold",
                                     )
@@ -58,40 +59,40 @@ class RentalBuilder(Builder):
         for rental in rentals_list:
             match rental.status:
                 case "active":
-                    status_text = self.localization.active
+                    status_text = localization.active
                     status_color = ft.Colors.GREEN_500
                 case "completed":
-                    status_text = self.localization.completed
+                    status_text = localization.completed
                     status_color = ft.Colors.BLACK_87
                 case "cancelled":
-                    status_text = self.localization.cancelled
+                    status_text = localization.cancelled
                     status_color = ft.Colors.RED_500
 
             rental_card = ft.Container(
                 content=ft.Column(
                     [
                         ft.Text(
-                            f"{self.localization.status}: {status_text}",
+                            f"{localization.status}: {status_text}",
                             size=16,
                             color=status_color,
                             weight="bold",
                         ),
                         ft.Text(
-                            f"{self.localization.car}: {rental.car.brand} {rental.car.model} ({rental.car.plate_number})",
+                            f"{localization.car}: {rental.car.brand} {rental.car.model} ({rental.car.plate_number})",
                             size=14,
                         ),
                         ft.Text(
-                            f"{self.localization.tenant}: {rental.tenant.last_name} {rental.tenant.first_name} ({rental.tenant.phone_number})",
+                            f"{localization.tenant}: {rental.tenant.last_name} {rental.tenant.first_name} ({rental.tenant.phone_number})",
                             size=14,
                         ),
                         ft.Text(
-                            f"{self.localization.income_in_total}: {rental.total_cost} руб."
+                            f"{localization.income_in_total}: {rental.total_cost} руб."
                         ),
                         ft.Text(
-                            f"{self.localization.start}: {rental.start_date}",
+                            f"{localization.start}: {rental.start_date}",
                             size=14,
                         ),
-                        ft.Text(f"{self.localization.end}: {rental.end_date}", size=14),
+                        ft.Text(f"{localization.end}: {rental.end_date}", size=14),
                     ],
                     spacing=5,
                 ),
@@ -122,7 +123,7 @@ class RentalBuilder(Builder):
 
         if not cars or not tenants:
             snack = ft.SnackBar(
-                ft.Text(self.localization.no_cars_or_tenants),
+                ft.Text(localization.no_cars_or_tenants),
                 bgcolor=ft.Colors.RED_500,
                 open=True,
             )
@@ -161,7 +162,7 @@ class RentalBuilder(Builder):
 
         dates_info_text = ft.Text("Срок: 7 дней", size=16, weight="bold")
         total_price_text = ft.Text(
-            f"{self.localization.total_to_be_paid}: 0 руб.",
+            f"{localization.total_to_be_paid}: 0 руб.",
             size=20,
             weight="bold",
             color=ft.Colors.GREEN_700,
@@ -201,12 +202,12 @@ class RentalBuilder(Builder):
         manual_date_row = ft.Row(
             [
                 ft.ElevatedButton(
-                    self.localization.start,
+                    localization.start,
                     icon=ft.Icons.CALENDAR_MONTH,
                     on_click=lambda e: self.page.show_dialog(start_picker),
                 ),
                 ft.ElevatedButton(
-                    self.localization.end,
+                    localization.end,
                     icon=ft.Icons.CALENDAR_MONTH,
                     on_click=lambda e: self.page.show_dialog(end_picker),
                 ),
@@ -260,7 +261,7 @@ class RentalBuilder(Builder):
                     dates_info_text.value = f"Срок: {periods_count} раз(а) по {period} дн. ({start_date.strftime('%d.%m')} - {end_date.strftime('%d.%m')})"
 
             total_price_text.value = (
-                f"{self.localization.total_to_be_paid}: {total_amount:.2f} руб."
+                f"{localization.total_to_be_paid}: {total_amount:.2f} руб."
             )
 
             error_text.update()
@@ -286,9 +287,9 @@ class RentalBuilder(Builder):
         tariff_radio = ft.RadioGroup(
             content=ft.Row(
                 [
-                    ft.Radio(value="weekly", label=self.localization.weekly),
-                    ft.Radio(value="monthly", label=self.localization.monthly),
-                    ft.Radio(value="custom", label=self.localization.another_term),
+                    ft.Radio(value="weekly", label=localization.weekly),
+                    ft.Radio(value="monthly", label=localization.monthly),
+                    ft.Radio(value="custom", label=localization.another_term),
                 ],
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
@@ -300,13 +301,13 @@ class RentalBuilder(Builder):
             pass
 
         save_button = ft.ElevatedButton(
-            self.localization.save, icon=ft.Icons.SAVE, on_click=on_click_save
+            localization.save, icon=ft.Icons.SAVE, on_click=on_click_save
         )
 
         content = ft.Column(
             [
                 ft.Text(
-                    f"📋 {self.localization.add_rental}",
+                    f"📋 {localization.add_rental}",
                     size=24,
                     weight="bold",
                 ),
