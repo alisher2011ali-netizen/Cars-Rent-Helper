@@ -1,6 +1,7 @@
 data/
 .db
 test_statement.pdf
+Cars-Rental-App.code-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
