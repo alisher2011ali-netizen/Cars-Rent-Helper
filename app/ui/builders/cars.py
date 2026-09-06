@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from core.models import session_factory, Car
+from services.localization import localization
 from ui.builders.base import Builder
 
 
 class CarBuilder(Builder):
     def build_cars_view(self, db: Session = session_factory()) -> ft.View:
         cars_list = db.scalars(select(Car)).all()
-        fab = self._build_fab("/add_car", self.localization.add_car)
+        fab = self._build_fab("/add_car", localization.add_car)
 
         if not cars_list:
             empty_message = self._build_not_data_container(
@@ -19,8 +20,8 @@ class CarBuilder(Builder):
                     color=ft.Colors.GREY_400,
                     align=ft.Alignment.CENTER,
                 ),
-                self.localization.no_added_cars,
-                self.localization.add_car,
+                localization.no_added_cars,
+                localization.add_car,
                 "/add_car",
             )
             return ft.View(
@@ -32,7 +33,7 @@ class CarBuilder(Builder):
                             [
                                 ft.AppBar(
                                     title=ft.Text(
-                                        f"🚗 {self.localization.cars}",
+                                        f"🚗 {localization.cars}",
                                         size=24,
                                         weight="bold",
                                     )
@@ -60,7 +61,7 @@ class CarBuilder(Builder):
 
         content = ft.Column(
             [
-                ft.Text(f"🚗 {self.localization.cars}", size=24, weight="bold"),
+                ft.Text(f"🚗 {localization.cars}", size=24, weight="bold"),
                 cars_column,
             ],
             spacing=20,
@@ -117,30 +118,30 @@ class CarBuilder(Builder):
             self._build_complete_snack_bar()
             self.page.go("/cars")
 
-        brand_input = ft.TextField(label=self.localization.brand, width=300)
-        model_input = ft.TextField(label=self.localization.model, width=300)
-        year_input = ft.TextField(label=self.localization.year_of_production, width=300)
-        plate_num_input = ft.TextField(label=self.localization.plate_number, width=300)
+        brand_input = ft.TextField(label=localization.brand, width=300)
+        model_input = ft.TextField(label=localization.model, width=300)
+        year_input = ft.TextField(label=localization.year_of_production, width=300)
+        plate_num_input = ft.TextField(label=localization.plate_number, width=300)
         input = ft.Container(
             content=ft.Column(
                 [
-                    ft.Text(self.localization.new_car, size=24, weight="bold"),
+                    ft.Text(localization.new_car, size=24, weight="bold"),
                     brand_input,
                     model_input,
                     year_input,
                     plate_num_input,
                     ft.TextButton(
-                        self.localization.upload_images,
+                        localization.upload_images,
                         icon=ft.Icons.UPLOAD_FILE,
                         on_click=pick_image_click,
                     ),
                     ft.ElevatedButton(
-                        self.localization.save,
+                        localization.save,
                         icon=ft.Icons.SAVE,
                         on_click=save_car,
                     ),
                     ft.ElevatedButton(
-                        self.localization.back,
+                        localization.back,
                         icon=ft.Icons.ARROW_BACK,
                         on_click=lambda e: self.page.go("/cars"),
                     ),

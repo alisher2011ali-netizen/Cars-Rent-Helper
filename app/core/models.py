@@ -8,6 +8,7 @@ from sqlalchemy import (
     Boolean,
     DECIMAL,
     DateTime,
+    Enum,
     func,
 )
 from sqlalchemy.orm import (
@@ -17,13 +18,14 @@ from sqlalchemy.orm import (
     relationship,
     sessionmaker,
 )
-from enum import Enum
+import enum
 from decimal import Decimal
+import os
 
-data_path = Path("data/")
-if not data_path.exists():
-    data_path.mkdir()
-db_path = data_path / "main.db"
+data_path = os.getenv("FLET_APP_STORAGE_DATA")
+if not data_path:
+    data_path = os.getcwd()
+db_path = os.path.join(data_path, "main.db")
 
 engine = create_engine(f"sqlite:///{db_path}", echo=False)
 session_factory = sessionmaker(bind=engine)
@@ -33,15 +35,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class Setting(Base):
-    __tablename__ = "settings"
-
-    id: Mapped[int] = mapped_column(primary_key=True)
-    key: Mapped[str] = mapped_column(String(100), unique=True)
-    value: Mapped[str] = mapped_column(String(500))
-
-
-class ImageCategory(str, Enum):
+class ImageCategory(str, enum.Enum):
     AVATAR = "avatar"
     PASSPORT = "passport"
     SUB_PASSPORT = "sub_passport"
@@ -160,6 +154,11 @@ class Rental(Base):
     payments: Mapped[list["Payment"]] = relationship(back_populates="rental")
 
 
+class PaymentType(str, enum.Enum):
+    income = "income"
+    expense = "expense"
+
+
 class Payment(Base):
     __tablename__ = "payments"
 
@@ -169,7 +168,7 @@ class Payment(Base):
     )
 
     amount: Mapped[Decimal] = mapped_column(DECIMAL)
-    type: Mapped[bool] = mapped_column(Boolean)  # True (income) / False (expense)
+    type: Mapped[PaymentType] = mapped_column(Enum(PaymentType))
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     comment: Mapped[str | None] = mapped_column(String(200), nullable=True)
 

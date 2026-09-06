@@ -1,5 +1,6 @@
 import flet as ft
 
+from services.localization import localization
 from ui.builders.base import Builder
 
 
@@ -8,7 +9,7 @@ class FirstLaunchBuilder(Builder):
         def on_language_change(e):
             selected_language = e.control.value
             self.page.shared_preferences.set("language_code", selected_language)
-            self.localization.load_lang(selected_language)
+            localization.load_lang(selected_language)
 
             self.page.views.clear()
             self.page.views.append(self.build_first_launch_view())
@@ -16,11 +17,7 @@ class FirstLaunchBuilder(Builder):
         def on_currency_change(e):
             selected_currency = e.control.value
             self.page.shared_preferences.set("currency", selected_currency)
-            self.localization.currency = selected_currency
-
-        def on_continue(e):
-            self.page.shared_preferences.set("is_first_launch", False)
-            self.page.go("/cars")
+            localization.currency = selected_currency
 
         content = ft.Column(
             [
@@ -33,14 +30,14 @@ class FirstLaunchBuilder(Builder):
                             align=ft.Alignment.CENTER,
                         ),
                         ft.Text(
-                            self.localization.app_name,
+                            localization.app_name,
                             size=28,
                             weight="bold",
                         ),
                     ],
                 ),
                 ft.Text(
-                    self.localization.hello_text,
+                    localization.hello_text,
                     size=24,
                     weight="bold",
                     text_align="center",
@@ -48,7 +45,7 @@ class FirstLaunchBuilder(Builder):
                 ft.Column(
                     [
                         ft.Text(
-                            self.localization.choose_language,
+                            localization.choose_language,
                             size=20,
                             text_align="center",
                         ),
@@ -68,7 +65,7 @@ class FirstLaunchBuilder(Builder):
                 ft.Column(
                     [
                         ft.Text(
-                            self.localization.choose_currency,
+                            localization.choose_currency,
                             size=20,
                             text_align="center",
                         ),
@@ -87,10 +84,10 @@ class FirstLaunchBuilder(Builder):
                     spacing=5,
                 ),
                 ft.ElevatedButton(
-                    ft.Text(self.localization.continue_text, size=20),
+                    ft.Text(localization.continue_text, size=20),
                     icon=ft.Icon(ft.Icons.ARROW_FORWARD, size=20),
                     align=ft.Alignment.CENTER,
-                    on_click=on_continue,
+                    on_click=self._on_continue,
                 ),
             ],
             alignment=ft.Alignment.CENTER,
@@ -98,3 +95,7 @@ class FirstLaunchBuilder(Builder):
             spacing=20,
         )
         return ft.View(route="/first_launch", controls=[content])
+
+    async def _on_continue(self, e):
+        await self.page.shared_preferences.set("is_first_launch", False)
+        self.page.go("/cars")

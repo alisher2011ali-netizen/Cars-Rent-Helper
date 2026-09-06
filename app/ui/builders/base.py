@@ -2,7 +2,7 @@ import flet as ft
 
 from core.models import Car
 from services.connector import Connector
-from services.localization import Localization
+from services.localization import localization
 
 
 class Builder:
@@ -13,29 +13,25 @@ class Builder:
         self.page = page
         self.connector = Connector()
         self.current_image_indices = {}
-        self.localization = Localization(
-            self.page.shared_preferences.get("language_code"),
-            self.page.shared_preferences.get("currency"),
-        )
 
     def _get_nav_bar(self, current_index: int):
         return ft.NavigationBar(
             destinations=[
                 ft.NavigationBarDestination(
-                    icon=ft.Icons.HOME, label=self.localization.main_menu
+                    icon=ft.Icons.HOME, label=localization.main_menu
                 ),
                 ft.NavigationBarDestination(
-                    icon=ft.Icons.CAR_RENTAL, label=self.localization.cars
+                    icon=ft.Icons.CAR_RENTAL, label=localization.cars
                 ),
                 ft.NavigationBarDestination(
-                    icon=ft.Icons.PERSON, label=self.localization.tenants
+                    icon=ft.Icons.PERSON, label=localization.tenants
                 ),
                 ft.NavigationBarDestination(
-                    icon=ft.Icons.KEY, label=self.localization.rentals
+                    icon=ft.Icons.KEY, label=localization.rentals
                 ),
                 ft.NavigationBarDestination(
                     icon=ft.Icons.ATTACH_MONEY_OUTLINED,
-                    label=self.localization.finances,
+                    label=localization.finances,
                 ),
             ],
             selected_index=current_index,
@@ -85,7 +81,7 @@ class Builder:
         else:
             image_container = ft.Container(
                 content=ft.Text(
-                    self.localization.no_images,
+                    localization.no_images,
                     size=14,
                     weight="bold",
                     color=ft.Colors.GREY_700,
@@ -94,7 +90,7 @@ class Builder:
             )
             image_with_swipe = image_container
             indicator = ft.Text(
-                self.localization.no_images,
+                localization.no_images,
                 size=12,
                 weight="bold",
                 color=ft.Colors.GREY_700,
@@ -160,7 +156,7 @@ class Builder:
 
     def _build_complete_snack_bar(self) -> ft.SnackBar:
         return ft.SnackBar(
-            content=ft.Text(self.localization.added_successfully),
+            content=ft.Text(localization.added_successfully),
             action=ft.SnackBarAction(label="OK"),
             duration=ft.Duration(seconds=5),
         )

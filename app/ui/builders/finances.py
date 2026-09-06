@@ -3,7 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ui.builders.base import Builder
-from core.models import session_factory, Payment
+from core.models import session_factory, Payment, PaymentType
+from services.localization import localization
 from parsing.parser import process_sber_pdf
 
 
@@ -11,12 +12,12 @@ class FinanceBuilder(Builder):
     def build_finances_view(self, db: Session = session_factory()) -> ft.View:
         payments_list = db.scalars(select(Payment)).all()
         title = ft.Text(
-            f"💰 {self.localization.finances}",
+            f"💰 {localization.finances}",
             size=24,
             weight="bold",
             color=ft.Colors.BLACK,
         )
-        fab = self._build_fab("/add_payment", self.localization.add_operation)
+        fab = self._build_fab("/add_payment", localization.add_operation)
 
         async def _on_file_picker_result(e: ft.FilePickerUploadEvent):
             if e.files:
@@ -46,8 +47,8 @@ class FinanceBuilder(Builder):
                     color=ft.Colors.GREY_400,
                     align=ft.Alignment.CENTER,
                 ),
-                self.localization.no_operations_history,
-                self.localization.add_operation,
+                localization.no_operations_history,
+                localization.add_operation,
                 "/add_payment",
             )
             return ft.View(
@@ -59,7 +60,7 @@ class FinanceBuilder(Builder):
                             [
                                 ft.AppBar(
                                     title=ft.Text(
-                                        f"💰 {self.localization.finances}",
+                                        f"💰 {localization.finances}",
                                         size=24,
                                         weight="bold",
                                     )
@@ -83,7 +84,7 @@ class FinanceBuilder(Builder):
         )
 
         for payment in payments_list:
-            payment_type = "+" if payment.type else "-"
+            payment_type = "+" if payment.type == PaymentType.income else "-"
             text_color = ft.Colors.GREEN_500 if payment.type else ft.Colors.RED_500
             if not payment.is_parsed:
                 payment_card = ft.Container(
@@ -96,11 +97,11 @@ class FinanceBuilder(Builder):
                                         size=14,
                                         color=text_color,
                                     ),
-                                    ft.Text(self.localization.currency, size=14),
+                                    ft.Text(localization.currency, size=14),
                                 ]
                             ),
                             ft.Text(
-                                f"""{self.localization.comment}:
+                                f"""{localization.comment}:
 {payment.comment}""",
                                 size=14,
                             ),
@@ -133,9 +134,7 @@ class FinanceBuilder(Builder):
                                                 weight=ft.FontWeight.BOLD,
                                                 color=text_color,
                                             ),
-                                            ft.Text(
-                                                self.localization.currency, size=14
-                                            ),
+                                            ft.Text(localization.currency, size=14),
                                         ],
                                         spacing=5,
                                     ),
@@ -201,7 +200,9 @@ class FinanceBuilder(Builder):
     def build_add_payment_view(self, db: Session = session_factory()) -> ft.View:
         def save_payment(e):
             payment_type = (
-                True if type_dropdown.value == self.localization.income else False
+                PaymentType.income
+                if type_dropdown.value == "income"
+                else PaymentType.expense
             )
             new_payment = Payment(
                 amount=amount_input.value,
@@ -214,18 +215,18 @@ class FinanceBuilder(Builder):
             self._build_complete_snack_bar()
             self.page.go("/finances")
 
-        amount_input = ft.TextField(label=self.localization.amount, width=300)
-        comment_input = ft.TextField(label=self.localization.comment, width=300)
+        amount_input = ft.TextField(label=localization.amount, width=300)
+        comment_input = ft.TextField(label=localization.comment, width=300)
         type_dropdown = ft.Dropdown(
             options=[
-                ft.DropdownOption(key="income", text=self.localization.income),
-                ft.DropdownOption(key="expense", text=self.localization.expense),
+                ft.DropdownOption(key="income", text=localization.income),
+                ft.DropdownOption(key="expense", text=localization.expense),
             ],
             value="income",
             width=200,
         )
         save_button = ft.ElevatedButton(
-            self.localization.save,
+            localization.save,
             icon=ft.Icons.SAVE,
             on_click=save_payment,
         )
@@ -234,7 +235,7 @@ class FinanceBuilder(Builder):
             content=ft.Column(
                 [
                     ft.Text(
-                        f"💰 {self.localization.new_operation}",
+                        f"💰 {localization.new_operation}",
                         size=24,
                         weight="bold",
                     ),
