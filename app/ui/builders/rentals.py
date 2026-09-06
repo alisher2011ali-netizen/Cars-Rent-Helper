@@ -47,6 +47,7 @@ class RentalBuilder(Builder):
                 ],
                 floating_action_button=fab,
                 floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
+                scroll=ft.ScrollMode.AUTO,
             )
 
         rentals_content = ft.Container(
@@ -109,6 +110,7 @@ class RentalBuilder(Builder):
             controls=[rentals_content],
             floating_action_button=fab,
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
+            scroll=ft.ScrollMode.AUTO,
         )
 
     def build_add_rental_view(self, db: Session = session_factory()) -> ft.View:
@@ -330,4 +332,5 @@ class RentalBuilder(Builder):
             controls=[
                 ft.Container(content=content, padding=20, alignment=ft.Alignment.CENTER)
             ],
+            scroll=ft.ScrollMode.AUTO,
         )

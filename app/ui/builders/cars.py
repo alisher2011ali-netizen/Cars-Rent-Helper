@@ -46,6 +46,7 @@ class CarBuilder(Builder):
                 ],
                 floating_action_button=fab,
                 floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
+                scroll=ft.ScrollMode.AUTO,
             )
 
         cars_column = ft.Column(
@@ -82,6 +83,7 @@ class CarBuilder(Builder):
             controls=[cars_content],
             floating_action_button=fab,
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
+            scroll=ft.ScrollMode.AUTO,
         )
 
     def build_add_car_view(self) -> ft.View:
@@ -156,4 +158,5 @@ class CarBuilder(Builder):
             route="/add_car",
             navigation_bar=self._get_nav_bar(1),
             controls=[input],
+            scroll=ft.ScrollMode.AUTO,
         )

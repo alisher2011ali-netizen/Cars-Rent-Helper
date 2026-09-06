@@ -104,4 +104,5 @@ class HomeBuilder(Builder):
                     height=self.page.height - 80,
                 )
             ],
+            scroll=ft.ScrollMode.AUTO,
         )
