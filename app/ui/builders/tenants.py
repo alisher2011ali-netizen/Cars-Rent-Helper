@@ -46,7 +46,6 @@ class TenantBuilder(Builder):
                 ],
                 floating_action_button=fab,
                 floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
-                scroll=ft.ScrollMode.AUTO,
             )
 
         def on_phone_number_tap(tenant_phone: str):
@@ -124,7 +123,6 @@ class TenantBuilder(Builder):
             controls=[ft.Container(content=tenants_content)],
             floating_action_button=fab,
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
-            scroll=ft.ScrollMode.AUTO,
         )
 
     def build_add_tenant_view(self, db: Session = session_factory()) -> ft.View:
@@ -276,5 +274,4 @@ class TenantBuilder(Builder):
             route="/add_tenant",
             navigation_bar=self._get_nav_bar(2),
             controls=[input],
-            scroll=ft.ScrollMode.AUTO,
         )

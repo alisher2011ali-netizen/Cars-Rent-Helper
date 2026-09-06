@@ -75,7 +75,6 @@ class FinanceBuilder(Builder):
                 ],
                 floating_action_button=fab,
                 floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
-                scroll=ft.ScrollMode.AUTO,
             )
 
         payments_content = ft.Container(
@@ -200,7 +199,6 @@ class FinanceBuilder(Builder):
             controls=[payments_content],
             floating_action_button=fab,
             floating_action_button_location=ft.FloatingActionButtonLocation.END_FLOAT,
-            scroll=ft.ScrollMode.AUTO,
         )
 
     def build_add_payment_view(self, db: Session = session_factory()) -> ft.View:
@@ -286,5 +284,4 @@ class FinanceBuilder(Builder):
             route="/add_payment",
             navigation_bar=self._get_nav_bar(4),
             controls=[ft.Container(content=content, alignment=ft.Alignment.CENTER)],
-            scroll=ft.ScrollMode.AUTO,
         )
